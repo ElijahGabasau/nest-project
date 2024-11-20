@@ -1,5 +1,7 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import {
+  IsBoolean,
   IsEnum,
   IsInt,
   IsNumber,
@@ -53,4 +55,12 @@ export class OfferBaseReqDto {
   @IsString()
   @Length(0, 3000)
   image?: string;
+
+  @ApiProperty({ default: true })
+  @IsBoolean()
+  isActive: boolean;
+
+  @ApiProperty({ default: false })
+  @IsBoolean()
+  isSalon: boolean;
 }

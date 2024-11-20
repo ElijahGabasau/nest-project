@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 
+import { RoleEnum } from '../../../../../common/enums/role.enum';
 import { UserID } from '../../../../../common/types/entity-ids.type';
-import { RoleEnum } from '../../enums/role.enum';
-import { StatusEnum } from '../../enums/status.enum';
+import { AccountEnum } from '../../enums/account.enum';
 
 export class UserBaseResDto {
   @ApiProperty({ type: String })
@@ -10,6 +10,6 @@ export class UserBaseResDto {
   name: string;
   email: string;
   phone: string;
-  status: StatusEnum;
+  account: AccountEnum;
   role: RoleEnum;
 }

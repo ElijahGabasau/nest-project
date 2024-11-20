@@ -12,8 +12,11 @@ export class OfferBaseResDto {
   brand: BrandEnum;
   model: string;
   year?: number;
+
+  //todo price in uah
   price: number;
   currency: CurrencyEnum;
+
   city: string;
   region: string;
   image?: string;

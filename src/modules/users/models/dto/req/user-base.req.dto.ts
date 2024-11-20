@@ -9,9 +9,9 @@ import {
   Matches,
 } from 'class-validator';
 
+import { RoleEnum } from '../../../../../common/enums/role.enum';
 import { TransformHelper } from '../../../../../common/helpers/transform.helper';
-import { RoleEnum } from '../../enums/role.enum';
-import { StatusEnum } from '../../enums/status.enum';
+import { AccountEnum } from '../../enums/account.enum';
 
 export class UserBaseReqDto {
   @ApiProperty({ example: 'John Doe' })
@@ -41,12 +41,12 @@ export class UserBaseReqDto {
   @Matches(/^\+380\d{9}$/)
   phone: string;
 
-  @IsEnum(StatusEnum)
-  @ApiProperty({ enum: StatusEnum, default: StatusEnum.BASIC })
-  status: StatusEnum;
+  @IsEnum(AccountEnum)
+  @ApiProperty({ default: AccountEnum.BASIC })
+  account: AccountEnum;
 
   @IsEnum(RoleEnum)
-  @ApiProperty({ enum: RoleEnum, default: RoleEnum.CUSTOMER })
+  @ApiProperty({ default: RoleEnum.CUSTOMER })
   role: RoleEnum;
 
   @IsOptional()

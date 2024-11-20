@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import {
   IsEmail,
+  IsEnum,
   IsNumber,
   IsOptional,
   IsString,
@@ -9,6 +10,7 @@ import {
   Matches,
 } from 'class-validator';
 
+import { RoleEnum } from '../../../../../common/enums/role.enum';
 import { TransformHelper } from '../../../../../common/helpers/transform.helper';
 
 export class MechanicsBaseReqDto {
@@ -35,4 +37,8 @@ export class MechanicsBaseReqDto {
   @IsOptional()
   @IsNumber()
   experience: number;
+
+  @ApiProperty({ default: RoleEnum.SHOWROOM_MECHANIC })
+  @IsEnum(RoleEnum)
+  role: RoleEnum;
 }
