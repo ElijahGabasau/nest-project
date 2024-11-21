@@ -32,35 +32,4 @@ export class UsersController {
   public async updateAccount(@Body() updateUserDto: UpdateUserAccountReqDto) {
     await this.usersService.updateAccount();
   }
-
-  //manager
-  @Get()
-  public async findAll() {
-    await this.usersService.findAll();
-  }
-
-  @Get(':userId')
-  public async findOne() {
-    await this.usersService.findOne();
-  }
-
-  @Delete(':userId')
-  public async deleteOne() {
-    await this.usersService.deleteOne();
-  }
-
-  //admin
-  @Patch(':userId')
-  public async makeManager(@Body() updateUserDto: UpdateUserReqDto) {
-    await this.usersService.makeManager();
-  }
-
-  //todo make can be one delete, just with different permissions
-  // @Delete(':userId')
-  // public async deleteOne() {}
-
-  @Get(':role')
-  public async findByRole() {
-    await this.usersService.findByRole();
-  }
 }
