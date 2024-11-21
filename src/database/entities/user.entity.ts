@@ -1,10 +1,14 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 import { RoleEnum } from '../../common/enums/role.enum';
 import { UserID } from '../../common/types/entity-ids.type';
 import { AccountEnum } from '../../modules/users/models/enums/account.enum';
+import { CarShowroomEntity } from './car-showroom.entity';
 import { TableNameEnum } from './enums/table-name.enum';
+import { MechanicEntity } from './mechanic.entity';
 import { CreateUpdateModel } from './models/create-update.model';
+import { OfferEntity } from './offer.entity';
+import { RefreshTokenEntity } from './refresh-token.entity';
 
 @Entity(TableNameEnum.USERS)
 export class UserEntity extends CreateUpdateModel {
@@ -34,4 +38,16 @@ export class UserEntity extends CreateUpdateModel {
 
   @Column('timestamp', { nullable: true })
   deleted?: Date;
+
+  @OneToMany(() => RefreshTokenEntity, (entity) => entity.user)
+  refreshTokens?: RefreshTokenEntity[];
+
+  @OneToMany(() => OfferEntity, (entity) => entity.user)
+  offers?: OfferEntity[];
+
+  @OneToMany(() => CarShowroomEntity, (entity) => entity.user)
+  carShowrooms?: CarShowroomEntity[];
+
+  @OneToMany(() => MechanicEntity, (entity) => entity.user)
+  mechanics?: MechanicEntity[];
 }

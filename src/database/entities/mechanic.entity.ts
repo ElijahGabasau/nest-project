@@ -1,9 +1,21 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 import { RoleEnum } from '../../common/enums/role.enum';
-import { MechanicID } from '../../common/types/entity-ids.type';
+import {
+  CarShowroomID,
+  MechanicID,
+  UserID,
+} from '../../common/types/entity-ids.type';
+import { CarShowroomEntity } from './car-showroom.entity';
 import { TableNameEnum } from './enums/table-name.enum';
 import { CreateUpdateModel } from './models/create-update.model';
+import { UserEntity } from './user.entity';
 
 @Entity(TableNameEnum.MECHANICS)
 export class MechanicEntity extends CreateUpdateModel {
@@ -24,4 +36,16 @@ export class MechanicEntity extends CreateUpdateModel {
 
   @Column('enum', { enum: RoleEnum, default: RoleEnum.SHOWROOM_MECHANIC })
   role: RoleEnum;
+
+  @Column()
+  user_id: UserID;
+  @ManyToOne(() => UserEntity, (entity) => entity.mechanics)
+  @JoinColumn({ name: 'user_id' })
+  user?: UserEntity;
+
+  @Column()
+  carShowroom_id: CarShowroomID;
+  @ManyToOne(() => CarShowroomEntity, (entity) => entity.mechanics)
+  @JoinColumn({ name: 'carShowroom_id' })
+  carShowroom?: CarShowroomEntity;
 }

@@ -1,10 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { ShowRoomID } from '../../../../../common/types/entity-ids.type';
+import { CarShowroomID } from '../../../../../common/types/entity-ids.type';
 
 export class CarShowroomBaseResDto {
   @ApiProperty({ type: String })
-  id: ShowRoomID;
+  id: CarShowroomID;
   name: string;
   description: string;
 }
