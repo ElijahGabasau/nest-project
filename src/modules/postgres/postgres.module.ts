@@ -23,6 +23,7 @@ import { Config, DatabaseConfig } from '../../configs/config.type';
             path.join(
               process.cwd(),
               'dist',
+              'src',
               'database',
               'entities',
               '*.entity.js',

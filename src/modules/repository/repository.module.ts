@@ -5,6 +5,7 @@ import { MechanicRepository } from './services/mechanic.repository';
 import { OfferRepository } from './services/offer.repository';
 import { RefreshTokenRepository } from './services/refresh-token.repository';
 import { UserRepository } from './services/user.repository';
+import { ViewRepository } from './services/view.repository';
 
 const repositories = [
   UserRepository,
@@ -12,6 +13,7 @@ const repositories = [
   OfferRepository,
   MechanicRepository,
   CarShowroomRepository,
+  ViewRepository,
 ];
 
 @Global()

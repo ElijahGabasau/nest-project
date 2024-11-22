@@ -3,6 +3,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -17,6 +18,7 @@ import { CarShowroomEntity } from './car-showroom.entity';
 import { TableNameEnum } from './enums/table-name.enum';
 import { CreateUpdateModel } from './models/create-update.model';
 import { UserEntity } from './user.entity';
+import { ViewEntity } from './view.entity';
 
 @Entity(TableNameEnum.OFFERS)
 export class OfferEntity extends CreateUpdateModel {
@@ -70,4 +72,7 @@ export class OfferEntity extends CreateUpdateModel {
   @ManyToOne(() => CarShowroomEntity, (entity) => entity.offers)
   @JoinColumn({ name: 'carShowroom_id' })
   carShowroom?: CarShowroomEntity;
+
+  @OneToMany(() => ViewEntity, (entity) => entity.offer)
+  views?: ViewEntity[];
 }

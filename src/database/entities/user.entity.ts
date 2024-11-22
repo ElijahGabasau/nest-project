@@ -30,7 +30,7 @@ export class UserEntity extends CreateUpdateModel {
   @Column('enum', { enum: AccountEnum, default: AccountEnum.BASIC })
   account: AccountEnum;
 
-  @Column('enum', { enum: RoleEnum, default: RoleEnum.CUSTOMER })
+  @Column('enum', { enum: RoleEnum, default: RoleEnum.USER })
   role: RoleEnum;
 
   @Column('boolean', { default: false })

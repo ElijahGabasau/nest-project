@@ -46,7 +46,7 @@ export class UserBaseReqDto {
   account: AccountEnum;
 
   @IsEnum(RoleEnum)
-  @ApiProperty({ default: RoleEnum.CUSTOMER })
+  @ApiProperty({ default: RoleEnum.USER })
   role: RoleEnum;
 
   @IsOptional()

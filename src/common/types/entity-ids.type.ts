@@ -5,3 +5,4 @@ export type OfferID = Opaque<string, 'OfferID'>;
 export type MechanicID = Opaque<string, 'MechanicID'>;
 export type CarShowroomID = Opaque<string, 'CarShowroomID'>;
 export type RefreshTokenID = Opaque<string, 'RefreshTokenID'>;
+export type ViewID = Opaque<string, 'ViewID'>;
