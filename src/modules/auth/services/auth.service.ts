@@ -69,6 +69,18 @@ export class AuthService {
     // ])
   }
 
+  public async refresh(): Promise<any> {
+    //todo after make userData
+    // const user = await this.userRepository.findOneBy({ id: req.user.id });
+    // const tokens = await generateAndSaveTokens(
+    //   this.tokenService,
+    //   this.authCacheService,
+    //   this.refreshTokenRepository,
+    //   user.id,
+    // );
+    // return { user: UserMapper.toResDto(user), tokens };
+  }
+
   private async isEmailExist(email: string) {
     const user = await this.userRepository.findOneBy({ email });
     if (user) {

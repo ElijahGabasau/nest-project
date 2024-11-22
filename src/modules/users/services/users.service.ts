@@ -1,13 +1,14 @@
 import { Injectable } from '@nestjs/common';
 
+import { IUserData } from '../../auth/models/interfaces/user-data.interface';
 import { UserRepository } from '../../repository/services/user.repository';
 
 @Injectable()
 export class UsersService {
   constructor(private userRepository: UserRepository) {}
 
-  public async findMe() {
-    return 'found me';
+  public async me(userData: IUserData) {
+    return `found me: ${userData.role}`;
   }
 
   public async updateMe() {

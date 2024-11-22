@@ -22,6 +22,16 @@ export class AuthCacheService {
     await this.redisService.expire(key, this.jwtConfig.accessExpiresIn);
   }
 
+  public async isAccessTokenExist(
+    userId: string,
+    token: string,
+  ): Promise<boolean> {
+    const key = this.getKey(userId);
+
+    const set = await this.redisService.sMembers(key);
+    return set.includes(token);
+  }
+
   public async deleteToken(userId: string): Promise<void> {
     const key = this.getKey(userId);
     await this.redisService.deleteByKey(key);
