@@ -24,8 +24,8 @@ export class UserEntity extends CreateUpdateModel {
   @Column('text', { select: false })
   password: string;
 
-  @Column('text')
-  phone: string;
+  @Column('text', { nullable: true })
+  phone?: string;
 
   @Column('enum', { enum: AccountEnum, default: AccountEnum.BASIC })
   account: AccountEnum;
@@ -36,8 +36,8 @@ export class UserEntity extends CreateUpdateModel {
   @Column('boolean', { default: false })
   isHaveSalon: boolean;
 
-  @Column('timestamp', { nullable: true })
-  deleted?: Date;
+  @Column('boolean', { default: false })
+  isDeleted: boolean;
 
   @OneToMany(() => RefreshTokenEntity, (entity) => entity.user)
   refreshTokens?: RefreshTokenEntity[];

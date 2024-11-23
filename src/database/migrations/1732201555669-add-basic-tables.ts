@@ -23,7 +23,6 @@ export class AddBasicTables1732201555669 implements MigrationInterface {
         await queryRunner.query(`CREATE TYPE "public"."users_account_enum" AS ENUM('basic', 'premium')`);
         await queryRunner.query(`ALTER TABLE "users" ADD "account" "public"."users_account_enum" NOT NULL DEFAULT 'basic'`);
         await queryRunner.query(`CREATE TYPE "public"."users_role_enum" AS ENUM('customer', 'user', 'manager', 'admin', 'showroom_admin', 'showroom_manager', 'showroom_mechanic')`);
-        await queryRunner.query(`ALTER TABLE "users" ADD "role" "public"."users_role_enum" NOT NULL DEFAULT 'customer'`);
         await queryRunner.query(`ALTER TABLE "users" ADD "isHaveSalon" boolean NOT NULL DEFAULT false`);
         await queryRunner.query(`ALTER TABLE "users" ADD "deleted" TIMESTAMP`);
         await queryRunner.query(`ALTER TABLE "users" DROP CONSTRAINT "PK_a3ffb1c0c8416b9fc6f907b7433"`);

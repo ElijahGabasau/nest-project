@@ -35,11 +35,12 @@ export class UserBaseReqDto {
   @Transform(TransformHelper.trim)
   password: string;
 
+  @IsOptional()
   @ApiProperty({ example: '+380501234567' })
   @IsString()
   @Length(10, 15)
   @Matches(/^\+380\d{9}$/)
-  phone: string;
+  phone?: string;
 
   @IsEnum(AccountEnum)
   @ApiProperty({ default: AccountEnum.BASIC })

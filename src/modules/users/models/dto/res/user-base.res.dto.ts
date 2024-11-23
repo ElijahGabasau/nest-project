@@ -9,7 +9,8 @@ export class UserBaseResDto {
   id: UserID;
   name: string;
   email: string;
-  phone: string;
+  phone?: string;
   account: AccountEnum;
   role: RoleEnum;
+  isDeleted: boolean;
 }

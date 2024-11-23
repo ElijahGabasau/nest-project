@@ -1,13 +1,19 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
 import { RefreshTokenRepository } from '../../repository/services/refresh-token.repository';
 import { UserRepository } from '../../repository/services/user.repository';
 import { UserMapper } from '../../users/services/user.mapper';
-import { generateAndSaveTokens } from '../helpers/tokens.helper';
+import { TokensHelper } from '../helpers/tokens.helper';
 import { SignInReqDto } from '../models/dto/req/sign-in.req.dto';
 import { SignUpReqDto } from '../models/dto/req/sign-up.req.dto';
 import { AuthResDto } from '../models/dto/res/auth.res.dto';
+import { TokenPairResDto } from '../models/dto/res/token-pair.res.dto';
+import { IUserData } from '../models/interfaces/user-data.interface';
 import { AuthCacheService } from './auth-cache-service';
 import { TokenService } from './token-service';
 
@@ -29,7 +35,7 @@ export class AuthService {
         password,
       }),
     );
-    const tokens = await generateAndSaveTokens(
+    const tokens = await TokensHelper.generateAndSaveTokens(
       this.tokenService,
       this.authCacheService,
       this.refreshTokenRepository,
@@ -39,6 +45,7 @@ export class AuthService {
   }
 
   public async signIn(dto: SignInReqDto): Promise<AuthResDto> {
+    await this.isUserNotDeleted(dto.email);
     const user = await this.userRepository.findOne({
       where: { email: dto.email },
       select: ['id', 'password'],
@@ -51,7 +58,7 @@ export class AuthService {
       throw new UnauthorizedException('Password is incorrect');
     }
 
-    const tokens = await generateAndSaveTokens(
+    const tokens = await TokensHelper.generateAndSaveTokens(
       this.tokenService,
       this.authCacheService,
       this.refreshTokenRepository,
@@ -62,29 +69,42 @@ export class AuthService {
     return { user: UserMapper.toResDto(userEntity), tokens };
   }
 
-  public async signOut(): Promise<void> {
-    //todo after make userData
-    // await Promise.all([
-    //   this.authCacheService.deleteToken(),
-    // ])
+  public async signOut(userData: IUserData): Promise<void> {
+    await TokensHelper.deleteTokens(
+      this.authCacheService,
+      this.refreshTokenRepository,
+      userData.userId,
+    );
   }
 
-  public async refresh(): Promise<any> {
-    //todo after make userData
-    // const user = await this.userRepository.findOneBy({ id: req.user.id });
-    // const tokens = await generateAndSaveTokens(
-    //   this.tokenService,
-    //   this.authCacheService,
-    //   this.refreshTokenRepository,
-    //   user.id,
-    // );
-    // return { user: UserMapper.toResDto(user), tokens };
+  public async refresh(userData: IUserData): Promise<TokenPairResDto> {
+    await TokensHelper.deleteTokens(
+      this.authCacheService,
+      this.refreshTokenRepository,
+      userData.userId,
+    );
+    const tokens = await TokensHelper.generateAndSaveTokens(
+      this.tokenService,
+      this.authCacheService,
+      this.refreshTokenRepository,
+      userData.userId,
+    );
+    return tokens;
   }
 
   private async isEmailExist(email: string) {
     const user = await this.userRepository.findOneBy({ email });
     if (user) {
-      throw new Error('Email already exist');
+      throw new ConflictException('Email already exist');
+    }
+  }
+  private async isUserNotDeleted(email: string) {
+    const user = await this.userRepository.findOneBy({
+      email,
+      isDeleted: true,
+    });
+    if (user) {
+      throw new ConflictException('Your account is deleted ot banned');
     }
   }
 }

@@ -6,5 +6,4 @@ export class UserAdminBaseReqDto extends PickType(UserBaseReqDto, [
   'name',
   'email',
   'password',
-  'role',
 ]) {}

@@ -51,7 +51,7 @@ export class JwtAccessGuard implements CanActivate {
     }
     const user = await this.userRepository.findOneBy({
       id: payload.userId,
-      deleted: IsNull(),
+      isDeleted: false,
     });
     if (!user) {
       throw new UnauthorizedException();

@@ -40,7 +40,7 @@ import { Config, DatabaseConfig } from '../../configs/config.type';
             ),
           ],
           synchronize: false,
-          migrationsRun: true,
+          migrationsRun: false,
         };
       },
       inject: [ConfigService],

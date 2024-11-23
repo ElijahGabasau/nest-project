@@ -21,7 +21,9 @@ export class ViewEntity {
 
   @Column()
   offer_id: OfferID;
-  @ManyToOne(() => OfferEntity, (entity) => entity.views)
+  @ManyToOne(() => OfferEntity, (entity) => entity.views, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'offer_id' })
   offer?: OfferEntity;
 }

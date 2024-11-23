@@ -1,9 +1,22 @@
-import { Controller, Delete, Get, Post } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+} from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+import { UserID } from '../../common/types/entity-ids.type';
+import { SkipAuth } from '../auth/decorators/skip-auth.decorator';
+import { UserAdminBaseReqDto } from './models/dto/req/user-admin-base.req.dto';
+import { UserAdminResDto } from './models/dto/res/user-admin.res.dto';
+import { UserMapper } from './services/user.mapper';
 import { UsersSuperAdminService } from './services/users-super-admin.service';
 
-// @ApiBearerAuth()
 @ApiTags('users-super-admin')
 @Controller('users-super-admin')
 export class UsersSuperAdminController {
@@ -11,21 +24,34 @@ export class UsersSuperAdminController {
     private readonly usersSuperAdminService: UsersSuperAdminService,
   ) {}
 
-  @Get('me')
-  public async findMe() {
-    await this.usersSuperAdminService.findMe();
+  @SkipAuth()
+  @Post('create-super-admin')
+  public async createSuperAdmin(
+    @Body() dto: UserAdminBaseReqDto,
+  ): Promise<UserAdminResDto> {
+    const result = await this.usersSuperAdminService.createSuperAdmin(dto);
+    return UserMapper.toAdminResDto(result);
   }
 
-  @Post()
-  public async makeManager() {
-    await this.usersSuperAdminService.makeManager();
+  @ApiBearerAuth()
+  @Post('create-manager')
+  public async createManager(
+    @Body() dto: UserAdminBaseReqDto,
+  ): Promise<UserAdminResDto> {
+    const result = await this.usersSuperAdminService.createManager(dto);
+    return UserMapper.toAdminResDto(result);
   }
 
-  @Delete(':userId')
-  public async deleteOne() {
-    await this.usersSuperAdminService.deleteOne();
+  @ApiBearerAuth()
+  @Patch('/delete:userId')
+  public async deleteOne(
+    @Param('userId', ParseUUIDPipe) userId: UserID,
+  ): Promise<void> {
+    await this.usersSuperAdminService.deleteOne(userId);
   }
 
+  //todo get by role
+  @ApiBearerAuth()
   @Get(':role')
   public async findByRole() {
     await this.usersSuperAdminService.findByRole();
