@@ -2,8 +2,8 @@ import {
   Column,
   Entity,
   JoinColumn,
-  ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -33,7 +33,7 @@ export class CarShowroomEntity extends CreateUpdateModel {
 
   @Column()
   user_id: UserID;
-  @ManyToOne(() => UserEntity, (entity) => entity.carShowrooms)
+  @OneToOne(() => UserEntity, (entity) => entity.carShowroom)
   @JoinColumn({ name: 'user_id' })
   user?: UserEntity;
 

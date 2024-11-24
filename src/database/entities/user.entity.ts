@@ -1,4 +1,10 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 import { RoleEnum } from '../../common/enums/role.enum';
 import { UserID } from '../../common/types/entity-ids.type';
@@ -45,8 +51,8 @@ export class UserEntity extends CreateUpdateModel {
   @OneToMany(() => OfferEntity, (entity) => entity.user)
   offers?: OfferEntity[];
 
-  @OneToMany(() => CarShowroomEntity, (entity) => entity.user)
-  carShowrooms?: CarShowroomEntity[];
+  @OneToOne(() => CarShowroomEntity, (entity) => entity.user)
+  carShowroom?: CarShowroomEntity;
 
   @OneToMany(() => MechanicEntity, (entity) => entity.user)
   mechanics?: MechanicEntity[];

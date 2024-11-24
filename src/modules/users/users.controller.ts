@@ -1,10 +1,10 @@
-import { Body, Controller, Delete, Get, Patch } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Patch, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { IUserData } from '../auth/models/interfaces/user-data.interface';
 import { UpdateUserReqDto } from './models/dto/req/update-user.req.dto';
-import { UpdateUserAccountReqDto } from './models/dto/req/update-user-account.req.dto';
+import { UserBaseResDto } from './models/dto/res/user-base.res.dto';
 import { UserMapper } from './services/user.mapper';
 import { UsersService } from './services/users.service';
 
@@ -16,26 +16,29 @@ export class UsersController {
 
   //user
   @Get('me')
-  public async me(@CurrentUser() userData: IUserData) {
+  public async me(@CurrentUser() userData: IUserData): Promise<UserBaseResDto> {
     const result = await this.usersService.me(userData);
     return UserMapper.toResDto(result);
   }
 
   @Patch('me')
   public async updateMe(
-    @CurrentUser() userData: any,
-    @Body() updateUserDto: UpdateUserReqDto,
-  ) {
-    await this.usersService.updateMe();
+    @CurrentUser() userData: IUserData,
+    @Body() dto: UpdateUserReqDto,
+  ): Promise<UserBaseResDto> {
+    const result = await this.usersService.updateMe(userData, dto);
+    return UserMapper.toResDto(result);
   }
 
   @Delete('me')
-  public async deleteMe() {
-    await this.usersService.deleteMe();
+  public async deleteMe(@CurrentUser() userData: IUserData): Promise<void> {
+    await this.usersService.deleteMe(userData);
   }
 
   @Patch('account')
-  public async updateAccount(@Body() updateUserDto: UpdateUserAccountReqDto) {
-    await this.usersService.updateAccount();
+  public async updateAccount(
+    @CurrentUser() userData: IUserData,
+  ): Promise<void> {
+    await this.usersService.updateAccount(userData);
   }
 }

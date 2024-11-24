@@ -16,16 +16,14 @@ export class UsersAdminService {
     private readonly refreshTokenRepository: RefreshTokenRepository,
   ) {}
 
-  //todo not sure if this is needed
-  // public async findAll() {
-  //   return 'found all';
-  // }
+  public async findAll(): Promise<UserEntity[]> {
+    return await this.userRepository.find();
+  }
 
   public async findOne(userId: UserID): Promise<UserEntity> {
     return await this.userRepository.findOneBy({ id: userId });
   }
 
-  //only users
   public async ban(userId: UserID): Promise<void> {
     const user = await this.userRepository.findOneBy({
       id: userId,
@@ -45,5 +43,12 @@ export class UsersAdminService {
         userId,
       ),
     ]);
+  }
+
+  public async restoreUser(userId: UserID): Promise<void> {
+    await this.userRepository.update(
+      { id: userId, role: RoleEnum.USER },
+      { isDeleted: false },
+    );
   }
 }

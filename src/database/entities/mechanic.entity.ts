@@ -32,7 +32,7 @@ export class MechanicEntity extends CreateUpdateModel {
   phone: string;
 
   @Column('text', { nullable: true })
-  experience: number;
+  experienceInYears: number;
 
   @Column('enum', { enum: RoleEnum, default: RoleEnum.SHOWROOM_MECHANIC })
   role: RoleEnum;

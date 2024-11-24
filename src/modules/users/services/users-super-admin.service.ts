@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   ForbiddenException,
   Injectable,
@@ -61,8 +62,11 @@ export class UsersSuperAdminService {
   }
 
   // todo by role
-  public async findByRole() {
-    return 'found by role';
+  public async findByRole(role: RoleEnum): Promise<UserEntity[]> {
+    if (!Object.values(RoleEnum).includes(role)) {
+      throw new BadRequestException('Invalid role');
+    }
+    return await this.userRepository.findBy({ role });
   }
 
   private async isEmailExist(email: string) {

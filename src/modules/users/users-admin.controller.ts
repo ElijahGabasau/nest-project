@@ -19,11 +19,11 @@ import { UsersAdminService } from './services/users-admin.service';
 export class UsersAdminController {
   constructor(private readonly usersAdminService: UsersAdminService) {}
 
-  //todo not sure if this is needed
-  // @Get()
-  // public async findAll() {
-  //   await this.usersAdminService.findAll();
-  // }
+  @Get('users')
+  public async findAll(): Promise<UserBaseResDto[]> {
+    const result = await this.usersAdminService.findAll();
+    return result.map((user) => UserMapper.toResDto(user));
+  }
 
   @Get(':userId')
   public async findOne(
@@ -38,5 +38,11 @@ export class UsersAdminController {
     @Param('userId', ParseUUIDPipe) userId: UserID,
   ): Promise<void> {
     await this.usersAdminService.ban(userId);
+  }
+  @Patch('restoreUser:userId')
+  public async restoreUser(
+    @Param('userId', ParseUUIDPipe) userId: UserID,
+  ): Promise<void> {
+    await this.usersAdminService.restoreUser(userId);
   }
 }

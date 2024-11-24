@@ -10,10 +10,13 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+import { RoleEnum } from '../../common/enums/role.enum';
 import { UserID } from '../../common/types/entity-ids.type';
 import { SkipAuth } from '../auth/decorators/skip-auth.decorator';
 import { UserAdminBaseReqDto } from './models/dto/req/user-admin-base.req.dto';
 import { UserAdminResDto } from './models/dto/res/user-admin.res.dto';
+import { UserBaseResDto } from './models/dto/res/user-base.res.dto';
+import { UserShortResDto } from './models/dto/res/user-short.res.dto';
 import { UserMapper } from './services/user.mapper';
 import { UsersSuperAdminService } from './services/users-super-admin.service';
 
@@ -50,10 +53,12 @@ export class UsersSuperAdminController {
     await this.usersSuperAdminService.deleteOne(userId);
   }
 
-  //todo get by role
   @ApiBearerAuth()
   @Get(':role')
-  public async findByRole() {
-    await this.usersSuperAdminService.findByRole();
+  public async findByRole(
+    @Param('role') role: RoleEnum,
+  ): Promise<UserBaseResDto[]> {
+    const result = await this.usersSuperAdminService.findByRole(role);
+    return result.map((user) => UserMapper.toResDto(user));
   }
 }
