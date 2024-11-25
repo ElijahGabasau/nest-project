@@ -4,6 +4,7 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -12,8 +13,8 @@ import {
   OfferID,
   UserID,
 } from '../../common/types/entity-ids.type';
-import { BrandEnum } from '../../modules/offers/models/enums/brand.enum';
 import { CurrencyEnum } from '../../modules/offers/models/enums/currency.enum';
+import { CarBrandEntity } from './car-brand.entity';
 import { CarShowroomEntity } from './car-showroom.entity';
 import { TableNameEnum } from './enums/table-name.enum';
 import { CreateUpdateModel } from './models/create-update.model';
@@ -31,8 +32,8 @@ export class OfferEntity extends CreateUpdateModel {
   @Column('text', { nullable: true })
   description: string;
 
-  @Column('enum', { enum: BrandEnum })
-  brand: BrandEnum;
+  @Column('text')
+  brand: string;
 
   @Column('text')
   model: string;
@@ -45,6 +46,12 @@ export class OfferEntity extends CreateUpdateModel {
 
   @Column('enum', { enum: CurrencyEnum })
   currency: CurrencyEnum;
+
+  @Column('text')
+  priceInUAH: number;
+
+  @Column('text')
+  currencyRate: number;
 
   @Column('text')
   city: string;
@@ -67,12 +74,15 @@ export class OfferEntity extends CreateUpdateModel {
   @JoinColumn({ name: 'user_id' })
   user?: UserEntity;
 
-  @Column()
-  carShowroom_id: CarShowroomID;
+  @Column({ nullable: true })
+  carShowroom_id?: CarShowroomID;
   @ManyToOne(() => CarShowroomEntity, (entity) => entity.offers)
   @JoinColumn({ name: 'carShowroom_id' })
   carShowroom?: CarShowroomEntity;
 
   @OneToMany(() => ViewEntity, (entity) => entity.offer)
   views?: ViewEntity[];
+
+  @OneToOne(() => CarBrandEntity, (entity) => entity.offer)
+  carBrand?: CarBrandEntity;
 }

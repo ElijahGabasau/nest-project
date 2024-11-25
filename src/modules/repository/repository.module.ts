@@ -1,5 +1,6 @@
 import { Global, Module } from '@nestjs/common';
 
+import { CarBrandRepository } from './services/car-brand.repository';
 import { CarShowroomRepository } from './services/car-showroom.repository';
 import { MechanicRepository } from './services/mechanic.repository';
 import { OfferRepository } from './services/offer.repository';
@@ -14,6 +15,7 @@ const repositories = [
   MechanicRepository,
   CarShowroomRepository,
   ViewRepository,
+  CarBrandRepository,
 ];
 
 @Global()

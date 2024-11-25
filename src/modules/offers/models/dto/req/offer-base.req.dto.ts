@@ -12,7 +12,6 @@ import {
 } from 'class-validator';
 
 import { TransformHelper } from '../../../../../common/helpers/transform.helper';
-import { BrandEnum } from '../../enums/brand.enum';
 import { CurrencyEnum } from '../../enums/currency.enum';
 
 export class OfferBaseReqDto {
@@ -25,8 +24,8 @@ export class OfferBaseReqDto {
   @Length(1, 200)
   description: string;
 
-  @IsEnum(BrandEnum)
-  brand: BrandEnum;
+  @IsString()
+  brand: string;
 
   @IsString()
   @Length(1, 50)

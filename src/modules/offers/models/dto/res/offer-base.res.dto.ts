@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 import { OfferID } from '../../../../../common/types/entity-ids.type';
-import { BrandEnum } from '../../enums/brand.enum';
 import { CurrencyEnum } from '../../enums/currency.enum';
 
 export class OfferBaseResDto {
@@ -9,13 +8,15 @@ export class OfferBaseResDto {
   id: OfferID;
   title: string;
   description: string;
-  brand: BrandEnum;
+  brand: string;
   model: string;
   year?: number;
 
-  //todo price in uah
+  priceInUAH: number;
+
   price: number;
   currency: CurrencyEnum;
+  currencyRate: number;
 
   city: string;
   region: string;
