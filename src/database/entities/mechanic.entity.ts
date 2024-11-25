@@ -45,7 +45,9 @@ export class MechanicEntity extends CreateUpdateModel {
 
   @Column()
   carShowroom_id: CarShowroomID;
-  @ManyToOne(() => CarShowroomEntity, (entity) => entity.mechanics)
+  @ManyToOne(() => CarShowroomEntity, (entity) => entity.mechanics, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'carShowroom_id' })
   carShowroom?: CarShowroomEntity;
 }

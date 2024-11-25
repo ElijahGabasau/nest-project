@@ -12,13 +12,14 @@ export class CarShowroomBaseReqDto {
   name: string;
 
   @IsString()
-  @Length(10, 300)
+  @Length(5, 300)
   description: string;
 
+  @ApiProperty({ example: 'mysalon@test.com' })
   @IsString()
   @Length(10, 300)
   @Transform(TransformHelper.trim)
-  @Matches(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%_*#?&])[A-Za-z\d@$_!%*#?&]{8,}$/)
+  @Matches(/^[^\s@]+@([^\s@.,]+\.)+[^\s@.,]{2,}$/)
   email: string;
 
   @IsOptional()

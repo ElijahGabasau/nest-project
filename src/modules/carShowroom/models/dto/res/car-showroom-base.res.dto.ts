@@ -7,4 +7,6 @@ export class CarShowroomBaseResDto {
   id: CarShowroomID;
   name: string;
   description: string;
+  email: string;
+  phone?: string;
 }
