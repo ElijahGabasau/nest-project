@@ -26,7 +26,7 @@ export class TasksService {
     }
   };
 
-  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  @Cron(CronExpression.EVERY_5_MINUTES)
   handleCron() {
     console.log('here is cron check');
     this.getCurrency();

@@ -4,6 +4,11 @@ export type Config = {
   redis: RedisConfig;
   aws: AwsConfig;
   jwt: JwtConfig;
+  mail: MailConfig;
+};
+export type MailConfig = {
+  email: string;
+  password: string;
 };
 
 export type AppConfig = {

@@ -13,10 +13,11 @@ import {
 
 import { TransformHelper } from '../../../../../common/helpers/transform.helper';
 import { CurrencyEnum } from '../../enums/currency.enum';
+import { StatusEnum } from '../../enums/status.enum';
 
 export class OfferBaseReqDto {
   @IsString()
-  @Length(1, 10)
+  @Length(1, 50)
   @Transform(TransformHelper.trim)
   title: string;
 
@@ -43,20 +44,24 @@ export class OfferBaseReqDto {
   @IsEnum(CurrencyEnum)
   currency: CurrencyEnum;
 
+  @ApiProperty({ default: null })
   @IsString()
-  city: string;
+  @IsOptional()
+  city?: string;
 
+  @ApiProperty({ default: null })
   @IsString()
-  region: string;
+  @IsOptional()
+  region?: string;
 
   @IsOptional()
   @IsString()
   @Length(0, 3000)
   image?: string;
 
-  @ApiProperty({ default: true })
-  @IsBoolean()
-  isActive: boolean;
+  @ApiProperty({ default: StatusEnum.PENDING })
+  @IsEnum(StatusEnum)
+  status: StatusEnum;
 
   @ApiProperty({ default: false })
   @IsBoolean()

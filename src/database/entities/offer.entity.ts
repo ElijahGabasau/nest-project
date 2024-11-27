@@ -14,6 +14,7 @@ import {
   UserID,
 } from '../../common/types/entity-ids.type';
 import { CurrencyEnum } from '../../modules/offers/models/enums/currency.enum';
+import { StatusEnum } from '../../modules/offers/models/enums/status.enum';
 import { CarBrandEntity } from './car-brand.entity';
 import { CarShowroomEntity } from './car-showroom.entity';
 import { TableNameEnum } from './enums/table-name.enum';
@@ -41,32 +42,35 @@ export class OfferEntity extends CreateUpdateModel {
   @Column('text', { nullable: true })
   year?: number;
 
-  @Column('text')
+  @Column('int', { default: 0 })
   price: number;
 
   @Column('enum', { enum: CurrencyEnum })
   currency: CurrencyEnum;
 
-  @Column('text')
+  @Column('int', { default: 0 })
   priceInUAH: number;
 
   @Column('text')
   currencyRate: number;
 
-  @Column('text')
+  @Column('text', { nullable: true, default: null })
   city: string;
 
-  @Column('text')
+  @Column('text', { nullable: true, default: null })
   region: string;
 
   @Column('text', { nullable: true })
   image?: string;
 
-  @Column('boolean', { default: true })
-  isActive: boolean;
+  @Column('enum', { enum: StatusEnum })
+  status: StatusEnum;
 
   @Column('boolean', { default: false })
   isSalon: boolean;
+
+  @Column('smallint', { default: 0 })
+  attempts: number;
 
   @Column()
   user_id: UserID;

@@ -21,6 +21,7 @@ export class OfferMapper {
       city: offer.city,
       region: offer.region,
       image: offer.image,
+      status: offer.status,
     };
   }
 

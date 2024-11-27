@@ -7,6 +7,10 @@ export default (): Config => ({
     port: parseInt(process.env.APP_PORT, 10) || 3000,
     host: process.env.APP_HOST,
   },
+  mail: {
+    email: process.env.SMTP_EMAIL,
+    password: process.env.SMTP_PASSWORD,
+  },
   database: {
     host: process.env.POSTGRES_HOST,
     port: parseInt(process.env.POSTGRES_PORT, 10) || 5432,

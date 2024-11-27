@@ -71,15 +71,6 @@ export class OffersController {
     const result = await this.offersService.getById(offerId);
     return OfferMapper.toResDto(result);
   }
-  //todo fix this
-  @ApiBearerAuth()
-  @Get('myOffers')
-  public async getMyOffers(
-    @CurrentUser() userData: IUserData,
-  ): Promise<OfferBaseResDto[]> {
-    const result = await this.offersService.getMyOffers(userData);
-    return result.map((offer) => OfferMapper.toResDto(offer));
-  }
 
   @ApiBearerAuth()
   @Delete('my-offer:offerId')
@@ -89,7 +80,7 @@ export class OffersController {
   ): Promise<void> {
     await this.offersService.deleteMyOffer(userData, offerId);
   }
-
+  //  change for status
   //manager
   @ApiBearerAuth()
   @Patch(':offerId/activate')
@@ -112,16 +103,9 @@ export class OffersController {
   @ApiBearerAuth()
   @Post('add-car-brand')
   public async addCarBrand(
-    @CurrentUser() userData: IUserData,
     @Body() dto: CarBrandReqDto,
   ): Promise<CarBrandResDto> {
-    const result = await this.offersService.addCarBrand(userData, dto);
+    const result = await this.offersService.addCarBrand(dto);
     return OfferMapper.toResDtoBrand(result);
   }
-
-  //todo maybe the same delete with permission
-  // @Delete(':offerId')
-  // public async delete() {
-  //   return await this.offersService.delete();
-  // }
 }

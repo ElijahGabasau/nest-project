@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 import { OfferID } from '../../../../../common/types/entity-ids.type';
 import { CurrencyEnum } from '../../enums/currency.enum';
+import { StatusEnum } from '../../enums/status.enum';
 
 export class OfferBaseResDto {
   @ApiProperty({ type: String })
@@ -21,4 +22,6 @@ export class OfferBaseResDto {
   city: string;
   region: string;
   image?: string;
+
+  status: StatusEnum;
 }
