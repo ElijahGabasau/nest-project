@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { RoleEnum } from '../../../../../common/enums/role.enum';
 import { MechanicID } from '../../../../../common/types/entity-ids.type';
 
 export class MechanicsBaseResDto {
@@ -10,5 +9,4 @@ export class MechanicsBaseResDto {
   email: string;
   phone: string;
   experienceInYears?: number;
-  role: RoleEnum;
 }

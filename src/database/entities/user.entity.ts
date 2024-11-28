@@ -8,6 +8,7 @@ import {
 
 import { RoleEnum } from '../../common/enums/role.enum';
 import { UserID } from '../../common/types/entity-ids.type';
+import { PermissionEnum } from '../../modules/accessControl/enums/permission.enum';
 import { AccountEnum } from '../../modules/users/models/enums/account.enum';
 import { CarShowroomEntity } from './car-showroom.entity';
 import { TableNameEnum } from './enums/table-name.enum';
@@ -44,6 +45,9 @@ export class UserEntity extends CreateUpdateModel {
 
   @Column('boolean', { default: false })
   isDeleted: boolean;
+
+  @Column('json', { default: [] })
+  permissions: PermissionEnum[];
 
   @OneToMany(() => RefreshTokenEntity, (entity) => entity.user)
   refreshTokens?: RefreshTokenEntity[];

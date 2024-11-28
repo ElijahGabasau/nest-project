@@ -18,7 +18,7 @@ export class MechanicRepository extends Repository<MechanicEntity> {
 
     if (query.search) {
       qb.andWhere(
-        'CONCAT(mechanics.name, mechanics.carShowroom) ILIKE :search',
+        'CONCAT(mechanics.name, mechanics.carShowroom_id) ILIKE :search',
       );
       qb.setParameter('search', `%${query.search}%`);
     }

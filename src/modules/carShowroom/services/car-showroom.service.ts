@@ -55,7 +55,7 @@ export class CarShowroomService {
     await this.carShowroomRepository.remove(carShowroom);
   }
 
-  public async getMyShowRoom(userData: IUserData): Promise<CarShowroomEntity> {
+  public async getMyShowroom(userData: IUserData): Promise<CarShowroomEntity> {
     return await this.carShowroomRepository.findOneBy({
       user_id: userData.userId,
     });

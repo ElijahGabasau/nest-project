@@ -63,7 +63,7 @@ export class OfferEntity extends CreateUpdateModel {
   @Column('text', { nullable: true })
   image?: string;
 
-  @Column('enum', { enum: StatusEnum })
+  @Column('enum', { enum: StatusEnum, default: StatusEnum.PENDING })
   status: StatusEnum;
 
   @Column('boolean', { default: false })

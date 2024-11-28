@@ -5,4 +5,5 @@ export interface IUserData {
   userId: UserID;
   email: string;
   role: RoleEnum;
+  permissions: string[];
 }

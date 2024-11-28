@@ -1,6 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { OfferID } from '../../../../../common/types/entity-ids.type';
+import {
+  CarShowroomID,
+  OfferID,
+} from '../../../../../common/types/entity-ids.type';
 import { CurrencyEnum } from '../../enums/currency.enum';
 import { StatusEnum } from '../../enums/status.enum';
 

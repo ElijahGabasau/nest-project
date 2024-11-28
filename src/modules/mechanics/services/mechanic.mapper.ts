@@ -11,12 +11,11 @@ export class MechanicMapper {
   public static toResDto(mechanic: MechanicEntity): MechanicsBaseResDto {
     return {
       id: mechanic.id,
-      role: mechanic.role,
       name: mechanic.name,
       email: mechanic.email,
       phone: mechanic.phone,
       experienceInYears: mechanic.experienceInYears,
-      //todo add carShowroom
+      //todo add carShowroom query builder
     };
   }
   public static toResDtoList(

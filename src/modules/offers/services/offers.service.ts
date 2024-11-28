@@ -10,12 +10,14 @@ import { OfferEntity } from '../../../database/entities/offer.entity';
 import { IUserData } from '../../auth/models/interfaces/user-data.interface';
 import { MailService } from '../../mail/services/mail.service';
 import { CarBrandRepository } from '../../repository/services/car-brand.repository';
+import { CarShowroomRepository } from '../../repository/services/car-showroom.repository';
 import { OfferRepository } from '../../repository/services/offer.repository';
 import { UserRepository } from '../../repository/services/user.repository';
 import { ViewRepository } from '../../repository/services/view.repository';
 import { AccountEnum } from '../../users/models/enums/account.enum';
 import { CheckProfanityHelper } from '../helpers/check-profanity.helper';
 import { CurrencyConverterHelper } from '../helpers/currency-converter.helper';
+import { OfferHelper } from '../helpers/offer.helper';
 import { CarBrandReqDto } from '../models/dto/req/car-brand.req.dto';
 import { ListOfferQueryDto } from '../models/dto/req/list-offer-query.dto';
 import { OfferBaseReqDto } from '../models/dto/req/offer-base.req.dto';
@@ -32,25 +34,23 @@ export class OffersService {
     private readonly viewRepository: ViewRepository,
     private readonly carBrandRepository: CarBrandRepository,
     private readonly mailService: MailService,
+    private readonly carShowroomRepository: CarShowroomRepository,
   ) {}
   public async findAll(
     query: ListOfferQueryDto,
   ): Promise<[OfferEntity[], number]> {
     return await this.offerRepository.findAll(query);
   }
-  //todo delete todo only when I finish everything with this controller!!!!!!!!!!!!!!!!WHOLE CONTROLLER!!!
+
   public async createOffer(
     userData: IUserData,
     dto: OfferBaseReqDto,
   ): Promise<OfferEntity> {
     // check is user not banned
-    const user = await this.userRepository.findOneBy({
-      id: userData.userId,
-      isDeleted: false,
-    });
-    if (!user) {
-      throw new ConflictException('User is banned or deleted');
-    }
+    const user = await OfferHelper.checkUserStatus(
+      this.userRepository,
+      userData.userId,
+    );
     // check by account type
     if (user.account === AccountEnum.BASIC) {
       const offerCount = await this.offerRepository.count({
@@ -64,19 +64,72 @@ export class OffersService {
       }
     }
     // check brand
-    const brand = await this.carBrandRepository.findOneBy({ brand: dto.brand });
-    if (!brand) {
-      await this.mailService.sendMessageAboutAddingCarBrand(dto.brand);
-      throw new ConflictException('Brand not found and mail sent');
-    }
+    const brand = await OfferHelper.validateBrand(
+      this.carBrandRepository,
+      dto.brand,
+      this.mailService,
+    );
 
     // currency rate
-    const currencyRate = await this.currencyService.getCurrency(dto.currency);
-    // convert price to UAH
-    const priceInUAH = await CurrencyConverterHelper.convertInUAH(
+    const { currencyRate, priceInUAH } = await OfferHelper.getConvertedPrice(
+      this.currencyService,
       dto.currency,
       dto.price,
+    );
+
+    // check bad-word filter
+
+    const offer = await this.offerRepository.save(
+      this.offerRepository.create({
+        ...dto,
+        currencyRate,
+        priceInUAH,
+        user_id: userData.userId,
+      }),
+    );
+
+    await OfferHelper.validateProfanity(
+      `${dto.title} ${dto.description}`,
+      offer,
+      this.offerRepository,
+    );
+    return offer;
+  }
+
+  public async createOfferForShowroom(
+    userData: IUserData,
+    dto: OfferBaseReqDto,
+  ): Promise<OfferEntity> {
+    // check is user not banned
+    const user = await OfferHelper.checkUserStatus(
+      this.userRepository,
+      userData.userId,
+    );
+    // check showroom
+    const doUserHasShowroom = await this.userRepository.findOneBy({
+      id: userData.userId,
+      isHaveSalon: true,
+    });
+    if (!doUserHasShowroom) {
+      throw new ConflictException('User has no showroom');
+    }
+    //got showroom
+    const showroom = await this.carShowroomRepository.findOneBy({
+      user_id: userData.userId,
+    });
+
+    // check brand
+    const brand = await OfferHelper.validateBrand(
+      this.carBrandRepository,
+      dto.brand,
+      this.mailService,
+    );
+
+    // currency rate
+    const { currencyRate, priceInUAH } = await OfferHelper.getConvertedPrice(
       this.currencyService,
+      dto.currency,
+      dto.price,
     );
 
     // check bad-word filter
@@ -87,16 +140,16 @@ export class OffersService {
         currencyRate: currencyRate,
         priceInUAH: priceInUAH,
         user_id: userData.userId,
+        isSalon: true,
+        carShowroom_id: showroom.id,
       }),
     );
 
-    const isBadWord = await CheckProfanityHelper.checkProfanity(
+    await OfferHelper.validateProfanity(
       `${dto.title} ${dto.description}`,
+      offer,
+      this.offerRepository,
     );
-    if (!isBadWord) {
-      offer.status = StatusEnum.ACTIVE;
-      await this.offerRepository.save(offer);
-    }
     return offer;
   }
 
@@ -172,29 +225,46 @@ export class OffersService {
     await this.offerRepository.delete({ id: offerId });
   }
 
-  public async activate(userData: IUserData, offerId: OfferID): Promise<void> {
-    const offer = await this.offerRepository.findOneBy({ id: offerId });
-    if (!offer) {
-      throw new ConflictException('Offer not found');
-    }
+  public async activateOfferUser(offerId: OfferID): Promise<void> {
+    await this.checkUserOfferForStatus(this.offerRepository, offerId);
     await this.offerRepository.update(
       { id: offerId },
       { status: StatusEnum.ACTIVE },
     );
   }
 
-  public async deactivate(
-    userData: IUserData,
-    offerId: OfferID,
-  ): Promise<void> {
-    const offer = await this.offerRepository.findOneBy({ id: offerId });
-    if (!offer) {
-      throw new ConflictException('Offer not found');
-    }
+  public async deactivateOfferUser(offerId: OfferID): Promise<void> {
+    await this.checkUserOfferForStatus(this.offerRepository, offerId);
     await this.offerRepository.update(
       { id: offerId },
       { status: StatusEnum.INACTIVE },
     );
+  }
+
+  public async activateOfferShowroom(offerId: OfferID): Promise<void> {
+    await this.checkShowroomOfferForStatus(this.offerRepository, offerId);
+    await this.offerRepository.update(
+      { id: offerId },
+      { status: StatusEnum.ACTIVE },
+    );
+  }
+
+  public async deactivateOfferShowroom(offerId: OfferID): Promise<void> {
+    await this.checkShowroomOfferForStatus(this.offerRepository, offerId);
+    await this.offerRepository.update(
+      { id: offerId },
+      { status: StatusEnum.INACTIVE },
+    );
+  }
+
+  public async deleteByIdUserOffer(offerId: OfferID): Promise<void> {
+    await this.checkUserOfferForStatus(this.offerRepository, offerId);
+    await this.offerRepository.delete({ id: offerId });
+  }
+
+  public async deleteByIdShowroomOffer(offerId: OfferID): Promise<void> {
+    await this.checkShowroomOfferForStatus(this.offerRepository, offerId);
+    await this.offerRepository.delete({ id: offerId });
   }
 
   public async addCarBrand(dto: CarBrandReqDto): Promise<CarBrandEntity> {
@@ -207,5 +277,31 @@ export class OffersService {
         ...dto,
       }),
     );
+  }
+
+  private async checkUserOfferForStatus(
+    offerRepository: OfferRepository,
+    offerId: OfferID,
+  ) {
+    const offer = await offerRepository.findOneBy({
+      id: offerId,
+      isSalon: false,
+    });
+    if (!offer) {
+      throw new ConflictException('Offer not found or it is showroom offer');
+    }
+  }
+
+  private async checkShowroomOfferForStatus(
+    offerRepository: OfferRepository,
+    offerId: OfferID,
+  ) {
+    const offer = await offerRepository.findOneBy({
+      id: offerId,
+      isSalon: true,
+    });
+    if (!offer) {
+      throw new ConflictException('Offer not found or it is user offer');
+    }
   }
 }

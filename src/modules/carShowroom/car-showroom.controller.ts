@@ -7,12 +7,17 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
+import { RoleEnum } from '../../common/enums/role.enum';
 import { CarShowroomID } from '../../common/types/entity-ids.type';
+import { Roles } from '../accessControl/decorators/roles.decorator';
+import { RolesGuard } from '../accessControl/roles.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { SkipAuth } from '../auth/decorators/skip-auth.decorator';
+import { JwtAccessGuard } from '../auth/guards/jwt-access.guard';
 import { IUserData } from '../auth/models/interfaces/user-data.interface';
 import { CarShowroomBaseReqDto } from './models/dto/req/car-showroom-base.req.dto';
 import { CarShowroomUpdateReqDto } from './models/dto/req/car-showroom-update.req.dto';
@@ -28,7 +33,10 @@ export class CarShowroomController {
   constructor(private readonly carShowroomService: CarShowroomService) {}
 
   @ApiBearerAuth()
+  @UseGuards(JwtAccessGuard, RolesGuard)
+  @Roles(RoleEnum.USER)
   @Post()
+  @ApiOperation({ summary: 'Create showroom' })
   public async create(
     @CurrentUser() userData: IUserData,
     @Body() dto: CarShowroomBaseReqDto,
@@ -38,7 +46,10 @@ export class CarShowroomController {
   }
 
   @ApiBearerAuth()
+  @UseGuards(JwtAccessGuard, RolesGuard)
+  @Roles(RoleEnum.USER)
   @Patch('my-showroom')
+  @ApiOperation({ summary: 'Update my showroom' })
   public async updateMyShowroom(
     @CurrentUser() userData: IUserData,
     @Body() dto: CarShowroomUpdateReqDto,
@@ -51,7 +62,10 @@ export class CarShowroomController {
   }
 
   @ApiBearerAuth()
+  @UseGuards(JwtAccessGuard, RolesGuard)
+  @Roles(RoleEnum.USER)
   @Delete('my-showroom')
+  @ApiOperation({ summary: 'Delete my showroom' })
   public async deleteMyShowroom(
     @CurrentUser() userData: IUserData,
   ): Promise<void> {
@@ -59,17 +73,20 @@ export class CarShowroomController {
   }
 
   @ApiBearerAuth()
+  @UseGuards(JwtAccessGuard, RolesGuard)
+  @Roles(RoleEnum.USER)
   @Get('my-showroom')
-  public async getMyShowRoom(
+  @ApiOperation({ summary: 'Get my showroom' })
+  public async getMyShowroom(
     @CurrentUser() userData: IUserData,
   ): Promise<CarShowroomBaseResDto> {
-    const result = await this.carShowroomService.getMyShowRoom(userData);
+    const result = await this.carShowroomService.getMyShowroom(userData);
     return CarShowroomMapper.toResDto(result);
   }
 
-  //for all
   @SkipAuth()
   @Get()
+  @ApiOperation({ summary: 'Get all showrooms and search by name' })
   public async findAll(
     @Query() query: ListCarShowroomQueryDto,
   ): Promise<ListCarShowroomResDto> {
@@ -77,9 +94,11 @@ export class CarShowroomController {
     return CarShowroomMapper.toResDtoList(entities, total, query);
   }
 
-  //manager
   @ApiBearerAuth()
+  @UseGuards(JwtAccessGuard, RolesGuard)
+  @Roles(RoleEnum.SHOWROOM_ADMIN, RoleEnum.SHOWROOM_SUPER_ADMIN)
   @Get(':showroomId')
+  @ApiOperation({ summary: 'Get showroom by id' })
   public async getShowroom(
     @Param('showroomId') showroomId: CarShowroomID,
   ): Promise<CarShowroomBaseResDto> {
@@ -88,7 +107,10 @@ export class CarShowroomController {
   }
 
   @ApiBearerAuth()
+  @UseGuards(JwtAccessGuard, RolesGuard)
+  @Roles(RoleEnum.SHOWROOM_ADMIN, RoleEnum.SHOWROOM_SUPER_ADMIN)
   @Delete(':showroomId')
+  @ApiOperation({ summary: 'Delete showroom by id' })
   public async deleteShowroom(
     @Param('showroomId') showroomId: CarShowroomID,
   ): Promise<void> {

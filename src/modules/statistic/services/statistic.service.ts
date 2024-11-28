@@ -3,6 +3,7 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import { Between } from 'typeorm';
 
+import { RoleEnum } from '../../../common/enums/role.enum';
 import { OfferID } from '../../../common/types/entity-ids.type';
 import { IUserData } from '../../auth/models/interfaces/user-data.interface';
 import { StatusEnum } from '../../offers/models/enums/status.enum';
@@ -28,6 +29,12 @@ export class StatisticService {
     const endOfDay = now.endOf('day');
     const week = now.subtract(1, 'week');
     const month = now.subtract(1, 'month');
+
+    if (userData.role === RoleEnum.USER) {
+      throw new ForbiddenException(
+        'Only user with premium account can get statistic',
+      );
+    }
 
     const offer = await this.offerRepository.findOne({
       where: { id: offerId },

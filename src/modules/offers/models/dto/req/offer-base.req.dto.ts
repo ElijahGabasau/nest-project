@@ -59,9 +59,9 @@ export class OfferBaseReqDto {
   @Length(0, 3000)
   image?: string;
 
-  @ApiProperty({ default: StatusEnum.PENDING })
-  @IsEnum(StatusEnum)
-  status: StatusEnum;
+  // @ApiProperty({ default: StatusEnum.PENDING })
+  // @IsEnum(StatusEnum)
+  // status: StatusEnum;
 
   @ApiProperty({ default: false })
   @IsBoolean()

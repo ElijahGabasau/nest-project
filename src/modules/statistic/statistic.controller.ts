@@ -1,8 +1,12 @@
-import { Controller, Get, Param } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
+import { RoleEnum } from '../../common/enums/role.enum';
 import { OfferID } from '../../common/types/entity-ids.type';
+import { Roles } from '../accessControl/decorators/roles.decorator';
+import { RolesGuard } from '../accessControl/roles.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { JwtAccessGuard } from '../auth/guards/jwt-access.guard';
 import { IUserData } from '../auth/models/interfaces/user-data.interface';
 import { StatisticBaseResDto } from './models/dto/res/statistic-base.res.dto';
 import { StatisticMapper } from './services/statistic.mapper';
@@ -14,7 +18,10 @@ import { StatisticService } from './services/statistic.service';
 export class StatisticController {
   constructor(private readonly statisticService: StatisticService) {}
 
+  @UseGuards(JwtAccessGuard, RolesGuard)
+  @Roles(RoleEnum.USER)
   @Get(':offerId')
+  @ApiOperation({ summary: 'Get offer statistic' })
   public async getStatistic(
     @CurrentUser() userData: IUserData,
     @Param('offerId') offerId: OfferID,

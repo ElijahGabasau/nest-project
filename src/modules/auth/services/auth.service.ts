@@ -5,6 +5,8 @@ import {
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
+import { RoleEnum } from '../../../common/enums/role.enum';
+import { RolePermissions } from '../../accessControl/role-permissions';
 import { RefreshTokenRepository } from '../../repository/services/refresh-token.repository';
 import { UserRepository } from '../../repository/services/user.repository';
 import { UserMapper } from '../../users/services/user.mapper';
@@ -28,11 +30,13 @@ export class AuthService {
 
   public async signUp(dto: SignUpReqDto): Promise<AuthResDto> {
     await this.isEmailExist(dto.email);
+    const permissions = RolePermissions[RoleEnum.USER];
     const password = await bcrypt.hash(dto.password, 10);
     const user = await this.userRepository.save(
       this.userRepository.create({
         ...dto,
         password,
+        permissions,
       }),
     );
     const tokens = await TokensHelper.generateAndSaveTokens(

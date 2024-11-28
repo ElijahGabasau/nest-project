@@ -1,7 +1,7 @@
+import { RoleEnum } from '../../../common/enums/role.enum';
 import { UserEntity } from '../../../database/entities/user.entity';
 import { IJwtPayload } from '../../auth/models/interfaces/jwt-payload.interface';
 import { IUserData } from '../../auth/models/interfaces/user-data.interface';
-import { UserAdminBaseReqDto } from '../models/dto/req/user-admin-base.req.dto';
 import { UserAdminResDto } from '../models/dto/res/user-admin.res.dto';
 import { UserBaseResDto } from '../models/dto/res/user-base.res.dto';
 
@@ -25,7 +25,8 @@ export class UserMapper {
     return {
       userId: user.id,
       email: user.email,
-      role: user.role,
+      role: user.role || RoleEnum.USER,
+      permissions: user.permissions,
     };
   }
 

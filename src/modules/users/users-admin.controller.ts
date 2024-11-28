@@ -1,14 +1,18 @@
 import {
   Controller,
-  Delete,
   Get,
   Param,
   ParseUUIDPipe,
   Patch,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
+import { RoleEnum } from '../../common/enums/role.enum';
 import { UserID } from '../../common/types/entity-ids.type';
+import { Roles } from '../accessControl/decorators/roles.decorator';
+import { RolesGuard } from '../accessControl/roles.guard';
+import { JwtAccessGuard } from '../auth/guards/jwt-access.guard';
 import { UserBaseResDto } from './models/dto/res/user-base.res.dto';
 import { UserMapper } from './services/user.mapper';
 import { UsersAdminService } from './services/users-admin.service';
@@ -19,13 +23,19 @@ import { UsersAdminService } from './services/users-admin.service';
 export class UsersAdminController {
   constructor(private readonly usersAdminService: UsersAdminService) {}
 
+  @UseGuards(JwtAccessGuard, RolesGuard)
+  @Roles(RoleEnum.ADMIN, RoleEnum.SUPER_ADMIN)
   @Get('users')
+  @ApiOperation({ summary: 'List of all users' })
   public async findAll(): Promise<UserBaseResDto[]> {
     const result = await this.usersAdminService.findAll();
     return result.map((user) => UserMapper.toResDto(user));
   }
 
+  @UseGuards(JwtAccessGuard, RolesGuard)
+  @Roles(RoleEnum.ADMIN, RoleEnum.SUPER_ADMIN)
   @Get(':userId')
+  @ApiOperation({ summary: 'Find user by id' })
   public async findOne(
     @Param('userId', ParseUUIDPipe) userId: UserID,
   ): Promise<UserBaseResDto> {
@@ -33,13 +43,20 @@ export class UsersAdminController {
     return UserMapper.toResDto(result);
   }
 
+  @UseGuards(JwtAccessGuard, RolesGuard)
+  @Roles(RoleEnum.ADMIN, RoleEnum.SUPER_ADMIN)
   @Patch('ban:userId')
+  @ApiOperation({ summary: 'Ban user' })
   public async ban(
     @Param('userId', ParseUUIDPipe) userId: UserID,
   ): Promise<void> {
     await this.usersAdminService.ban(userId);
   }
+
+  @UseGuards(JwtAccessGuard, RolesGuard)
+  @Roles(RoleEnum.ADMIN, RoleEnum.SUPER_ADMIN)
   @Patch('restoreUser:userId')
+  @ApiOperation({ summary: 'Unban user' })
   public async restoreUser(
     @Param('userId', ParseUUIDPipe) userId: UserID,
   ): Promise<void> {

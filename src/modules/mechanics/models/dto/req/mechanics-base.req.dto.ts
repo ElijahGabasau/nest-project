@@ -37,8 +37,4 @@ export class MechanicsBaseReqDto {
   @IsOptional()
   @IsNumber()
   experienceInYears?: number;
-
-  @ApiProperty({ default: RoleEnum.SHOWROOM_MECHANIC })
-  @IsEnum(RoleEnum)
-  role: RoleEnum;
 }
