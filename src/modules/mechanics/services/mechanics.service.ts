@@ -34,7 +34,7 @@ export class MechanicsService {
         'You cannot create mechanic without showroom',
       );
     }
-    return await this.mechanicRepository.save(
+    const newMechanic = await this.mechanicRepository.save(
       this.mechanicRepository.create({
         ...dto,
         user_id: userData.userId,
@@ -42,6 +42,12 @@ export class MechanicsService {
         role: RoleEnum.SHOWROOM_MECHANIC,
       }),
     );
+    const mechanicWithShowroom = await this.mechanicRepository.findOne({
+      where: { id: newMechanic.id },
+      relations: ['carShowroom'],
+    });
+
+    return mechanicWithShowroom;
   }
 
   public async update(
@@ -60,7 +66,14 @@ export class MechanicsService {
     }
     mechanic.experienceInYears = dto.experienceInYears;
     mechanic.phone = dto.phone;
-    return await this.mechanicRepository.save(mechanic);
+    const updatedMechanic = await this.mechanicRepository.save(mechanic);
+
+    const mechanicWithShowroom = await this.mechanicRepository.findOne({
+      where: { id: updatedMechanic.id },
+      relations: ['carShowroom'],
+    });
+
+    return mechanicWithShowroom;
   }
 
   public async getAll(
@@ -82,7 +95,12 @@ export class MechanicsService {
         'Mechanic not found or is not yours mechanic',
       );
     }
-    return mechanic;
+    const mechanicWithShowroom = await this.mechanicRepository.findOne({
+      where: { id: mechanic.id },
+      relations: ['carShowroom'],
+    });
+
+    return mechanicWithShowroom;
   }
 
   public async getById(mechanicId: MechanicID): Promise<MechanicEntity> {
@@ -92,7 +110,12 @@ export class MechanicsService {
     if (!mechanic) {
       throw new BadRequestException('Mechanic not found');
     }
-    return mechanic;
+    const mechanicWithShowroom = await this.mechanicRepository.findOne({
+      where: { id: mechanic.id },
+      relations: ['carShowroom'],
+    });
+
+    return mechanicWithShowroom;
   }
 
   public async deleteMyMechanic(

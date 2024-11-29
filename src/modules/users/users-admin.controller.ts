@@ -4,6 +4,7 @@ import {
   Param,
   ParseUUIDPipe,
   Patch,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -13,6 +14,11 @@ import { UserID } from '../../common/types/entity-ids.type';
 import { Roles } from '../accessControl/decorators/roles.decorator';
 import { RolesGuard } from '../accessControl/roles.guard';
 import { JwtAccessGuard } from '../auth/guards/jwt-access.guard';
+import { ListOfferQueryDto } from '../offers/models/dto/req/list-offer-query.dto';
+import { ListOfferResDto } from '../offers/models/dto/res/list-offer.res.dto';
+import { OfferMapper } from '../offers/services/offer.mapper';
+import { ListUserQueryDto } from './models/dto/req/list-user-query.dto';
+import { ListUserResDto } from './models/dto/res/list-user.res.dto';
 import { UserBaseResDto } from './models/dto/res/user-base.res.dto';
 import { UserMapper } from './services/user.mapper';
 import { UsersAdminService } from './services/users-admin.service';
@@ -27,9 +33,11 @@ export class UsersAdminController {
   @Roles(RoleEnum.ADMIN, RoleEnum.SUPER_ADMIN)
   @Get('users')
   @ApiOperation({ summary: 'List of all users' })
-  public async findAll(): Promise<UserBaseResDto[]> {
-    const result = await this.usersAdminService.findAll();
-    return result.map((user) => UserMapper.toResDto(user));
+  public async findAll(
+    @Query() query: ListUserQueryDto,
+  ): Promise<ListUserResDto> {
+    const [entities, total] = await this.usersAdminService.findAll(query);
+    return UserMapper.toResDtoList(entities, total, query);
   }
 
   @UseGuards(JwtAccessGuard, RolesGuard)

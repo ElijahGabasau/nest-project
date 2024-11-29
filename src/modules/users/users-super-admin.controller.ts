@@ -83,23 +83,19 @@ export class UsersSuperAdminController {
   @UseGuards(JwtAccessGuard, PermissionsGuard)
   @Permissions(PermissionEnum.DELETE_BY_ID_SUPER_ADMIN)
   @ApiBearerAuth()
-  @Delete('/delete:userId')
+  @Delete('/delete/:userId')
   @ApiOperation({ summary: 'Delete admin or user' })
-  public async deleteOne(
-    @Param('userId', ParseUUIDPipe) userId: UserID,
-  ): Promise<void> {
+  public async deleteOne(@Param('userId') userId: UserID): Promise<void> {
     await this.usersSuperAdminService.deleteOne(userId);
   }
 
   @UseGuards(JwtAccessGuard, PermissionsGuard)
   @Permissions(PermissionEnum.DELETE_BY_ID_SHOWROOM_SUPER_ADMIN)
   @ApiBearerAuth()
-  @Delete('/deleteShowroomAdmin:userId')
+  @Delete('/delete-showroom/:userId')
   @ApiOperation({ summary: 'Delete admin for showroom' })
-  public async deleteOneShowroom(
-    @Param('userId', ParseUUIDPipe) userId: UserID,
-  ): Promise<void> {
-    await this.usersSuperAdminService.deleteOneShowroom(userId);
+  public async deleteOneS(@Param('userId') userId: UserID): Promise<void> {
+    await this.usersSuperAdminService.deleteOneS(userId);
   }
 
   @UseGuards(JwtAccessGuard, RolesGuard)

@@ -2,11 +2,14 @@ import { ForbiddenException, Injectable } from '@nestjs/common';
 
 import { RoleEnum } from '../../../common/enums/role.enum';
 import { UserID } from '../../../common/types/entity-ids.type';
+import { OfferEntity } from '../../../database/entities/offer.entity';
 import { UserEntity } from '../../../database/entities/user.entity';
 import { TokensHelper } from '../../auth/helpers/tokens.helper';
 import { AuthCacheService } from '../../auth/services/auth-cache-service';
+import { ListOfferQueryDto } from '../../offers/models/dto/req/list-offer-query.dto';
 import { RefreshTokenRepository } from '../../repository/services/refresh-token.repository';
 import { UserRepository } from '../../repository/services/user.repository';
+import { ListUserQueryDto } from '../models/dto/req/list-user-query.dto';
 
 @Injectable()
 export class UsersAdminService {
@@ -16,8 +19,10 @@ export class UsersAdminService {
     private readonly refreshTokenRepository: RefreshTokenRepository,
   ) {}
 
-  public async findAll(): Promise<UserEntity[]> {
-    return await this.userRepository.find();
+  public async findAll(
+    query: ListUserQueryDto,
+  ): Promise<[UserEntity[], number]> {
+    return await this.userRepository.findAll(query);
   }
 
   public async findOne(userId: UserID): Promise<UserEntity> {

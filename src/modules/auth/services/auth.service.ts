@@ -108,7 +108,7 @@ export class AuthService {
       isDeleted: true,
     });
     if (user) {
-      throw new ConflictException('Your account is deleted ot banned');
+      throw new ConflictException('Your account is deleted or banned');
     }
   }
 }

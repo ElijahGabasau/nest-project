@@ -83,6 +83,9 @@ export class OffersService {
       dto.price,
     );
 
+    //check location
+    await OfferHelper.validateLocation(dto.city, dto.region);
+
     // check bad-word filter
 
     const offer = await this.offerRepository.save(
@@ -138,6 +141,8 @@ export class OffersService {
       dto.currency,
       dto.price,
     );
+
+    await OfferHelper.validateLocation(dto.city, dto.region);
 
     // check bad-word filter
 
@@ -216,6 +221,8 @@ export class OffersService {
       dto.price,
       this.currencyService,
     );
+
+    await OfferHelper.validateLocation(dto.city, dto.region);
 
     const isBadWord = await CheckProfanityHelper.checkProfanity(
       `${dto.title} ${dto.description}`,

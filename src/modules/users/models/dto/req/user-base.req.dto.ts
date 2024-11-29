@@ -20,7 +20,7 @@ export class UserBaseReqDto {
   @Transform(TransformHelper.trim)
   name: string;
 
-  @ApiProperty({ example: 'test@gmail.com' })
+  @ApiProperty({ example: 'test@test.com' })
   @IsString()
   @IsEmail()
   @Length(10, 150)

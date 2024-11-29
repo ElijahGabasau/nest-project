@@ -95,8 +95,6 @@ export class CarShowroomController {
   }
 
   @ApiBearerAuth()
-  @UseGuards(JwtAccessGuard, RolesGuard)
-  @Roles(RoleEnum.SHOWROOM_ADMIN, RoleEnum.SHOWROOM_SUPER_ADMIN)
   @Get(':showroomId')
   @ApiOperation({ summary: 'Get showroom by id' })
   public async getShowroom(

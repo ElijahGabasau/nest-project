@@ -4,6 +4,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
+import { In } from 'typeorm';
 
 import { RoleEnum } from '../../../common/enums/role.enum';
 import { UserID } from '../../../common/types/entity-ids.type';
@@ -91,7 +92,7 @@ export class UsersSuperAdminService {
   public async deleteOne(userId: UserID): Promise<void> {
     await Promise.all([
       this.userRepository.update(
-        { id: userId, role: RoleEnum.USER || RoleEnum.ADMIN },
+        { id: userId, role: In([RoleEnum.USER, RoleEnum.ADMIN]) },
         { isDeleted: true },
       ),
       TokensHelper.deleteTokens(
@@ -102,7 +103,7 @@ export class UsersSuperAdminService {
     ]);
   }
 
-  public async deleteOneShowroom(userId: UserID): Promise<void> {
+  public async deleteOneS(userId: UserID): Promise<void> {
     await Promise.all([
       this.userRepository.update(
         { id: userId, role: RoleEnum.SHOWROOM_ADMIN },

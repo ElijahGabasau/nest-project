@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
 
+import { MechanicID } from '../../../common/types/entity-ids.type';
 import { MechanicEntity } from '../../../database/entities/mechanic.entity';
 import { ListMechanicQueryDto } from '../../mechanics/models/dto/req/list-mechanic-query.dto';
 
@@ -9,7 +10,6 @@ export class MechanicRepository extends Repository<MechanicEntity> {
   constructor(private readonly dataSource: DataSource) {
     super(MechanicEntity, dataSource.manager);
   }
-
   public async findAllBy(
     query: ListMechanicQueryDto,
   ): Promise<[MechanicEntity[], number]> {

@@ -46,6 +46,15 @@ export class OfferHelper {
     return user;
   }
 
+  public static async validateLocation(
+    city: string,
+    region: string,
+  ): Promise<void> {
+    if (!city && !region) {
+      throw new ConflictException(' City or region must be filled');
+    }
+  }
+
   public static async validateBrand(
     carBrandRepository: CarBrandRepository,
     brandName: string,
