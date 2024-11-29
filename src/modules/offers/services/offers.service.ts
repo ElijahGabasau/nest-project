@@ -3,11 +3,15 @@ import {
   ForbiddenException,
   Injectable,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 import { OfferID } from '../../../common/types/entity-ids.type';
+import { AwsConfig, Config } from '../../../configs/config.type';
 import { CarBrandEntity } from '../../../database/entities/car-brand.entity';
 import { OfferEntity } from '../../../database/entities/offer.entity';
 import { IUserData } from '../../auth/models/interfaces/user-data.interface';
+import { ContentType } from '../../file-storage/enums/content-type.enum';
+import { FileStorageService } from '../../file-storage/services/file-storage.service';
 import { MailService } from '../../mail/services/mail.service';
 import { CarBrandRepository } from '../../repository/services/car-brand.repository';
 import { CarShowroomRepository } from '../../repository/services/car-showroom.repository';
@@ -35,6 +39,8 @@ export class OffersService {
     private readonly carBrandRepository: CarBrandRepository,
     private readonly mailService: MailService,
     private readonly carShowroomRepository: CarShowroomRepository,
+    private readonly fileStorageService: FileStorageService,
+    private readonly configService: ConfigService<Config>,
   ) {}
   public async findAll(
     query: ListOfferQueryDto,
@@ -82,6 +88,7 @@ export class OffersService {
     const offer = await this.offerRepository.save(
       this.offerRepository.create({
         ...dto,
+        brand: brand.brand,
         currencyRate,
         priceInUAH,
         user_id: userData.userId,
@@ -107,7 +114,7 @@ export class OffersService {
     );
     // check showroom
     const doUserHasShowroom = await this.userRepository.findOneBy({
-      id: userData.userId,
+      id: user.id,
       isHaveSalon: true,
     });
     if (!doUserHasShowroom) {
@@ -142,6 +149,7 @@ export class OffersService {
         user_id: userData.userId,
         isSalon: true,
         carShowroom_id: showroom.id,
+        brand: brand.brand,
       }),
     );
 
@@ -153,18 +161,55 @@ export class OffersService {
     return offer;
   }
 
+  public async uploadCarImage(
+    userData: IUserData,
+    offerId: OfferID,
+    file: Express.Multer.File,
+  ): Promise<void> {
+    const offer = await OfferHelper.checkAccessToOffer(
+      this.offerRepository,
+      offerId,
+      userData,
+    );
+
+    const pathToFile = await this.fileStorageService.uploadFile(
+      file,
+      ContentType.IMAGE,
+      offerId,
+    );
+    if (offer.image) {
+      await this.fileStorageService.deleteFile(offer.image);
+    }
+    const awsConfig = this.configService.get<AwsConfig>('aws');
+    const imageURL = `${awsConfig.endpoint}/${awsConfig.bucketName}/${pathToFile}`;
+    await this.offerRepository.save({ ...offer, image: imageURL });
+  }
+
+  public async deleteCarImage(
+    userData: IUserData,
+    offerId: OfferID,
+  ): Promise<void> {
+    const offer = await OfferHelper.checkAccessToOffer(
+      this.offerRepository,
+      offerId,
+      userData,
+    );
+    if (offer.image) {
+      await this.fileStorageService.deleteFile(offer.image);
+      await this.offerRepository.save({ ...offer, image: null });
+    }
+  }
+
   public async updateMyOffer(
     userData: IUserData,
     dto: UpdateOfferReqDto,
     offerId: OfferID,
   ): Promise<OfferEntity> {
-    const offer = await this.offerRepository.findOneBy({
-      id: offerId,
-      user_id: userData.userId,
-    });
-    if (!offer) {
-      throw new ConflictException('Offer not found or not yours');
-    }
+    const offer = await OfferHelper.checkAccessToOffer(
+      this.offerRepository,
+      offerId,
+      userData,
+    );
     const currencyRate = await this.currencyService.getCurrency(dto.currency);
     const priceInUAH = await CurrencyConverterHelper.convertInUAH(
       dto.currency,
@@ -215,18 +260,16 @@ export class OffersService {
     userData: IUserData,
     offerId: OfferID,
   ): Promise<void> {
-    const offer = await this.offerRepository.findOneBy({
-      id: offerId,
-      user_id: userData.userId,
-    });
-    if (!offer) {
-      throw new ConflictException('Offer not found or not yours');
-    }
+    await OfferHelper.checkAccessToOffer(
+      this.offerRepository,
+      offerId,
+      userData,
+    );
     await this.offerRepository.delete({ id: offerId });
   }
 
   public async activateOfferUser(offerId: OfferID): Promise<void> {
-    await this.checkUserOfferForStatus(this.offerRepository, offerId);
+    await OfferHelper.checkUserOfferForStatus(this.offerRepository, offerId);
     await this.offerRepository.update(
       { id: offerId },
       { status: StatusEnum.ACTIVE },
@@ -234,7 +277,7 @@ export class OffersService {
   }
 
   public async deactivateOfferUser(offerId: OfferID): Promise<void> {
-    await this.checkUserOfferForStatus(this.offerRepository, offerId);
+    await OfferHelper.checkUserOfferForStatus(this.offerRepository, offerId);
     await this.offerRepository.update(
       { id: offerId },
       { status: StatusEnum.INACTIVE },
@@ -242,7 +285,10 @@ export class OffersService {
   }
 
   public async activateOfferShowroom(offerId: OfferID): Promise<void> {
-    await this.checkShowroomOfferForStatus(this.offerRepository, offerId);
+    await OfferHelper.checkShowroomOfferForStatus(
+      this.offerRepository,
+      offerId,
+    );
     await this.offerRepository.update(
       { id: offerId },
       { status: StatusEnum.ACTIVE },
@@ -250,7 +296,10 @@ export class OffersService {
   }
 
   public async deactivateOfferShowroom(offerId: OfferID): Promise<void> {
-    await this.checkShowroomOfferForStatus(this.offerRepository, offerId);
+    await OfferHelper.checkShowroomOfferForStatus(
+      this.offerRepository,
+      offerId,
+    );
     await this.offerRepository.update(
       { id: offerId },
       { status: StatusEnum.INACTIVE },
@@ -258,12 +307,15 @@ export class OffersService {
   }
 
   public async deleteByIdUserOffer(offerId: OfferID): Promise<void> {
-    await this.checkUserOfferForStatus(this.offerRepository, offerId);
+    await OfferHelper.checkUserOfferForStatus(this.offerRepository, offerId);
     await this.offerRepository.delete({ id: offerId });
   }
 
   public async deleteByIdShowroomOffer(offerId: OfferID): Promise<void> {
-    await this.checkShowroomOfferForStatus(this.offerRepository, offerId);
+    await OfferHelper.checkShowroomOfferForStatus(
+      this.offerRepository,
+      offerId,
+    );
     await this.offerRepository.delete({ id: offerId });
   }
 
@@ -277,31 +329,5 @@ export class OffersService {
         ...dto,
       }),
     );
-  }
-
-  private async checkUserOfferForStatus(
-    offerRepository: OfferRepository,
-    offerId: OfferID,
-  ) {
-    const offer = await offerRepository.findOneBy({
-      id: offerId,
-      isSalon: false,
-    });
-    if (!offer) {
-      throw new ConflictException('Offer not found or it is showroom offer');
-    }
-  }
-
-  private async checkShowroomOfferForStatus(
-    offerRepository: OfferRepository,
-    offerId: OfferID,
-  ) {
-    const offer = await offerRepository.findOneBy({
-      id: offerId,
-      isSalon: true,
-    });
-    if (!offer) {
-      throw new ConflictException('Offer not found or it is user offer');
-    }
   }
 }

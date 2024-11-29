@@ -15,7 +15,9 @@ export class MechanicMapper {
       email: mechanic.email,
       phone: mechanic.phone,
       experienceInYears: mechanic.experienceInYears,
-      //todo add carShowroom query builder
+      carShowroom: mechanic.carShowroom
+        ? CarShowroomMapper.toResDto(mechanic.carShowroom)
+        : null,
     };
   }
   public static toResDtoList(

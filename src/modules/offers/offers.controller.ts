@@ -7,10 +7,20 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 
+import { ApiFile } from '../../common/decorators/api-file.decorator';
 import { RoleEnum } from '../../common/enums/role.enum';
 import { OfferID } from '../../common/types/entity-ids.type';
 import { Permissions } from '../accessControl/decorators/permissions.decorator';
@@ -26,6 +36,7 @@ import { CarBrandReqDto } from './models/dto/req/car-brand.req.dto';
 import { ListOfferQueryDto } from './models/dto/req/list-offer-query.dto';
 import { OfferBaseReqDto } from './models/dto/req/offer-base.req.dto';
 import { UpdateOfferReqDto } from './models/dto/req/update-offer.req.dto';
+import { UploadImageReqDto } from './models/dto/req/upload-image.req.dto';
 import { CarBrandResDto } from './models/dto/res/car-brand.res.dto';
 import { ListOfferResDto } from './models/dto/res/list-offer.res.dto';
 import { OfferBaseResDto } from './models/dto/res/offer-base.res.dto';
@@ -74,6 +85,34 @@ export class OffersController {
       dto,
     );
     return OfferMapper.toResDto(result);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAccessGuard, RolesGuard)
+  @Roles(RoleEnum.USER)
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('image'))
+  @ApiFile('image', false, true)
+  @Post('/image/:offerId')
+  @ApiOperation({ summary: 'Upload car image' })
+  public async uploadCarImage(
+    @CurrentUser() userData: IUserData,
+    @Param('offerId') offerId: OfferID,
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<void> {
+    await this.offersService.uploadCarImage(userData, offerId, file);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAccessGuard, RolesGuard)
+  @Roles(RoleEnum.USER)
+  @Delete('/image/:offerId')
+  @ApiOperation({ summary: 'Delete car image' })
+  public async delereCarImage(
+    @CurrentUser() userData: IUserData,
+    @Param('offerId') offerId: OfferID,
+  ): Promise<void> {
+    await this.offersService.deleteCarImage(userData, offerId);
   }
 
   @ApiBearerAuth()

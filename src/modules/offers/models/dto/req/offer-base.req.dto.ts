@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import {
-  IsBoolean,
   IsEnum,
   IsNumber,
   IsOptional,
@@ -13,7 +12,6 @@ import {
 
 import { TransformHelper } from '../../../../../common/helpers/transform.helper';
 import { CurrencyEnum } from '../../enums/currency.enum';
-import { StatusEnum } from '../../enums/status.enum';
 
 export class OfferBaseReqDto {
   @IsString()
@@ -53,17 +51,4 @@ export class OfferBaseReqDto {
   @IsString()
   @IsOptional()
   region?: string;
-
-  @IsOptional()
-  @IsString()
-  @Length(0, 3000)
-  image?: string;
-
-  // @ApiProperty({ default: StatusEnum.PENDING })
-  // @IsEnum(StatusEnum)
-  // status: StatusEnum;
-
-  @ApiProperty({ default: false })
-  @IsBoolean()
-  isSalon: boolean;
 }

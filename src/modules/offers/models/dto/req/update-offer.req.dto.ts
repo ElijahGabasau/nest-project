@@ -8,7 +8,6 @@ export class UpdateOfferReqDto extends PartialType(
     'currency',
     'price',
     'description',
-    'image',
     'city',
     'region',
   ]),

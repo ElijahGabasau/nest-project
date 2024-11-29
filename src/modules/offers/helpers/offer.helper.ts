@@ -1,9 +1,10 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 
-import { UserID } from '../../../common/types/entity-ids.type';
+import { OfferID, UserID } from '../../../common/types/entity-ids.type';
 import { CarBrandEntity } from '../../../database/entities/car-brand.entity';
 import { OfferEntity } from '../../../database/entities/offer.entity';
 import { UserEntity } from '../../../database/entities/user.entity';
+import { IUserData } from '../../auth/models/interfaces/user-data.interface';
 import { MailService } from '../../mail/services/mail.service';
 import { CarBrandRepository } from '../../repository/services/car-brand.repository';
 import { OfferRepository } from '../../repository/services/offer.repository';
@@ -16,6 +17,21 @@ import { CurrencyConverterHelper } from './currency-converter.helper';
 
 @Injectable()
 export class OfferHelper {
+  public static async checkAccessToOffer(
+    offerRepository: OfferRepository,
+    offerId: OfferID,
+    userData: IUserData,
+  ): Promise<OfferEntity> {
+    const offer = await offerRepository.findOneBy({
+      id: offerId,
+      user_id: userData.userId,
+    });
+    if (!offer) {
+      throw new ConflictException('Offer not found or not yours');
+    }
+    return offer;
+  }
+
   public static async checkUserStatus(
     userRepository: UserRepository,
     userId: UserID,
@@ -66,6 +82,32 @@ export class OfferHelper {
     if (!isBadWord) {
       offer.status = StatusEnum.ACTIVE;
       await offerRepository.save(offer);
+    }
+  }
+
+  public static async checkUserOfferForStatus(
+    offerRepository: OfferRepository,
+    offerId: OfferID,
+  ): Promise<void> {
+    const offer = await offerRepository.findOneBy({
+      id: offerId,
+      isSalon: false,
+    });
+    if (!offer) {
+      throw new ConflictException('Offer not found or it is showroom offer');
+    }
+  }
+
+  public static async checkShowroomOfferForStatus(
+    offerRepository: OfferRepository,
+    offerId: OfferID,
+  ): Promise<void> {
+    const offer = await offerRepository.findOneBy({
+      id: offerId,
+      isSalon: true,
+    });
+    if (!offer) {
+      throw new ConflictException('Offer not found or it is user offer');
     }
   }
 }
