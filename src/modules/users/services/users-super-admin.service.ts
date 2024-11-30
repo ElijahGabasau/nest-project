@@ -93,7 +93,7 @@ export class UsersSuperAdminService {
     await Promise.all([
       this.userRepository.update(
         { id: userId, role: In([RoleEnum.USER, RoleEnum.ADMIN]) },
-        { isDeleted: true },
+        { isActive: false },
       ),
       TokensHelper.deleteTokens(
         this.authCacheService,
@@ -107,7 +107,7 @@ export class UsersSuperAdminService {
     await Promise.all([
       this.userRepository.update(
         { id: userId, role: RoleEnum.SHOWROOM_ADMIN },
-        { isDeleted: true },
+        { isActive: false },
       ),
       TokensHelper.deleteTokens(
         this.authCacheService,

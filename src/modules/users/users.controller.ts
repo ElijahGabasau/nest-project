@@ -25,6 +25,15 @@ import { UsersService } from './services/users.service';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @Patch('become-seller')
+  @ApiOperation({ summary: 'Become a seller' })
+  public async becomeSeller(
+    @CurrentUser() userData: IUserData,
+  ): Promise<UserBaseResDto> {
+    const result = await this.usersService.becomeSeller(userData);
+    return UserMapper.toResDto(result);
+  }
+
   @Get('me')
   @ApiOperation({ summary: 'Information about user' })
   public async me(@CurrentUser() userData: IUserData): Promise<UserBaseResDto> {
@@ -32,10 +41,8 @@ export class UsersController {
     return UserMapper.toResDto(result);
   }
 
-  @UseGuards(JwtAccessGuard, RolesGuard)
-  @Roles(RoleEnum.USER)
   @Patch('me')
-  @ApiOperation({ summary: 'Update user information (only user)' })
+  @ApiOperation({ summary: 'Update user information' })
   public async updateMe(
     @CurrentUser() userData: IUserData,
     @Body() dto: UpdateUserReqDto,
@@ -44,21 +51,20 @@ export class UsersController {
     return UserMapper.toResDto(result);
   }
 
-  @UseGuards(JwtAccessGuard, RolesGuard)
-  @Roles(RoleEnum.USER)
   @Delete('me')
-  @ApiOperation({ summary: 'Delete user (only user)' })
+  @ApiOperation({ summary: 'Delete user' })
   public async deleteMe(@CurrentUser() userData: IUserData): Promise<void> {
     await this.usersService.deleteMe(userData);
   }
 
   @UseGuards(JwtAccessGuard, RolesGuard)
-  @Roles(RoleEnum.USER)
+  @Roles(RoleEnum.USER, RoleEnum.ADMIN, RoleEnum.SUPER_ADMIN)
   @Patch('account')
-  @ApiOperation({ summary: 'Update user account to Premium (only user)' })
+  @ApiOperation({ summary: 'Update user account to Premium ' })
   public async updateAccount(
     @CurrentUser() userData: IUserData,
-  ): Promise<void> {
-    await this.usersService.updateAccount(userData);
+  ): Promise<UserBaseResDto> {
+    const result = await this.usersService.updateAccount(userData);
+    return UserMapper.toResDto(result);
   }
 }

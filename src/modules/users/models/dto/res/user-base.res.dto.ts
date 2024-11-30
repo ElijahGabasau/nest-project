@@ -12,5 +12,5 @@ export class UserBaseResDto {
   phone?: string;
   account: AccountEnum;
   role: RoleEnum;
-  isDeleted: boolean;
+  isActive: boolean;
 }

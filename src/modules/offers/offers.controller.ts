@@ -14,7 +14,6 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
-  ApiBody,
   ApiConsumes,
   ApiOperation,
   ApiTags,
@@ -36,7 +35,6 @@ import { CarBrandReqDto } from './models/dto/req/car-brand.req.dto';
 import { ListOfferQueryDto } from './models/dto/req/list-offer-query.dto';
 import { OfferBaseReqDto } from './models/dto/req/offer-base.req.dto';
 import { UpdateOfferReqDto } from './models/dto/req/update-offer.req.dto';
-import { UploadImageReqDto } from './models/dto/req/upload-image.req.dto';
 import { CarBrandResDto } from './models/dto/res/car-brand.res.dto';
 import { ListOfferResDto } from './models/dto/res/list-offer.res.dto';
 import { OfferBaseResDto } from './models/dto/res/offer-base.res.dto';
@@ -60,7 +58,7 @@ export class OffersController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAccessGuard, RolesGuard)
-  @Roles(RoleEnum.USER)
+  @Roles(RoleEnum.USER, RoleEnum.ADMIN, RoleEnum.SUPER_ADMIN)
   @Post('user-offer')
   @ApiOperation({ summary: 'Create individual user offer' })
   public async createOffer(
@@ -73,7 +71,7 @@ export class OffersController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAccessGuard, RolesGuard)
-  @Roles(RoleEnum.USER)
+  @Roles(RoleEnum.USER, RoleEnum.SHOWROOM_ADMIN, RoleEnum.SHOWROOM_SUPER_ADMIN)
   @Post('showroom-offer')
   @ApiOperation({ summary: 'Create showroom offer' })
   public async createOfferForShowroom(
@@ -89,7 +87,13 @@ export class OffersController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAccessGuard, RolesGuard)
-  @Roles(RoleEnum.USER)
+  @Roles(
+    RoleEnum.USER,
+    RoleEnum.ADMIN,
+    RoleEnum.SUPER_ADMIN,
+    RoleEnum.SHOWROOM_ADMIN,
+    RoleEnum.SHOWROOM_SUPER_ADMIN,
+  )
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('image'))
   @ApiFile('image', false, true)
@@ -99,13 +103,24 @@ export class OffersController {
     @CurrentUser() userData: IUserData,
     @Param('offerId') offerId: OfferID,
     @UploadedFile() file: Express.Multer.File,
-  ): Promise<void> {
-    await this.offersService.uploadCarImage(userData, offerId, file);
+  ): Promise<OfferBaseResDto> {
+    const result = await this.offersService.uploadCarImage(
+      userData,
+      offerId,
+      file,
+    );
+    return OfferMapper.toResDto(result);
   }
 
   @ApiBearerAuth()
   @UseGuards(JwtAccessGuard, RolesGuard)
-  @Roles(RoleEnum.USER)
+  @Roles(
+    RoleEnum.USER,
+    RoleEnum.ADMIN,
+    RoleEnum.SUPER_ADMIN,
+    RoleEnum.SHOWROOM_ADMIN,
+    RoleEnum.SHOWROOM_SUPER_ADMIN,
+  )
   @Delete('/image/:offerId')
   @ApiOperation({ summary: 'Delete car image' })
   public async delereCarImage(
@@ -117,7 +132,13 @@ export class OffersController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAccessGuard, RolesGuard)
-  @Roles(RoleEnum.USER)
+  @Roles(
+    RoleEnum.USER,
+    RoleEnum.ADMIN,
+    RoleEnum.SUPER_ADMIN,
+    RoleEnum.SHOWROOM_ADMIN,
+    RoleEnum.SHOWROOM_SUPER_ADMIN,
+  )
   @Patch('my-offer:offerId')
   @ApiOperation({ summary: 'Update offer' })
   public async updateMyOffer(
@@ -143,7 +164,13 @@ export class OffersController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAccessGuard, RolesGuard)
-  @Roles(RoleEnum.USER)
+  @Roles(
+    RoleEnum.USER,
+    RoleEnum.ADMIN,
+    RoleEnum.SUPER_ADMIN,
+    RoleEnum.SHOWROOM_ADMIN,
+    RoleEnum.SHOWROOM_SUPER_ADMIN,
+  )
   @Delete('my-offer:offerId')
   @ApiOperation({ summary: 'Delete user offer' })
   public async deleteMyOffer(

@@ -105,7 +105,7 @@ export class AuthService {
   private async isUserNotDeleted(email: string) {
     const user = await this.userRepository.findOneBy({
       email,
-      isDeleted: true,
+      isActive: false,
     });
     if (user) {
       throw new ConflictException('Your account is deleted or banned');

@@ -32,7 +32,7 @@ export class UsersAdminService {
   public async ban(userId: UserID): Promise<void> {
     const user = await this.userRepository.findOneBy({
       id: userId,
-      role: RoleEnum.USER,
+      role: RoleEnum.USER || RoleEnum.GUEST,
     });
     if (!user) {
       throw new ForbiddenException('You can only ban users');
@@ -40,7 +40,7 @@ export class UsersAdminService {
     await Promise.all([
       this.userRepository.update(
         { id: userId, role: RoleEnum.USER },
-        { isDeleted: true },
+        { isActive: false },
       ),
       TokensHelper.deleteTokens(
         this.authCacheService,
@@ -53,7 +53,7 @@ export class UsersAdminService {
   public async restoreUser(userId: UserID): Promise<void> {
     await this.userRepository.update(
       { id: userId, role: RoleEnum.USER },
-      { isDeleted: false },
+      { isActive: true },
     );
   }
 }

@@ -34,7 +34,7 @@ export class CarShowroomController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAccessGuard, RolesGuard)
-  @Roles(RoleEnum.USER)
+  @Roles(RoleEnum.USER, RoleEnum.SHOWROOM_SUPER_ADMIN, RoleEnum.SHOWROOM_ADMIN)
   @Post()
   @ApiOperation({ summary: 'Create showroom' })
   public async create(
@@ -47,7 +47,7 @@ export class CarShowroomController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAccessGuard, RolesGuard)
-  @Roles(RoleEnum.USER)
+  @Roles(RoleEnum.USER, RoleEnum.SHOWROOM_SUPER_ADMIN, RoleEnum.SHOWROOM_ADMIN)
   @Patch('my-showroom')
   @ApiOperation({ summary: 'Update my showroom' })
   public async updateMyShowroom(
@@ -63,7 +63,7 @@ export class CarShowroomController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAccessGuard, RolesGuard)
-  @Roles(RoleEnum.USER)
+  @Roles(RoleEnum.USER, RoleEnum.SHOWROOM_SUPER_ADMIN, RoleEnum.SHOWROOM_ADMIN)
   @Delete('my-showroom')
   @ApiOperation({ summary: 'Delete my showroom' })
   public async deleteMyShowroom(
@@ -74,7 +74,7 @@ export class CarShowroomController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAccessGuard, RolesGuard)
-  @Roles(RoleEnum.USER)
+  @Roles(RoleEnum.USER, RoleEnum.SHOWROOM_SUPER_ADMIN, RoleEnum.SHOWROOM_ADMIN)
   @Get('my-showroom')
   @ApiOperation({ summary: 'Get my showroom' })
   public async getMyShowroom(

@@ -19,7 +19,7 @@ export class UserMapper {
       phone: user.phone,
       account: user.account,
       role: user.role,
-      isDeleted: user.isDeleted,
+      isActive: user.isActive,
     };
   }
 

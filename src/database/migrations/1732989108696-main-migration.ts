@@ -1,0 +1,126 @@
+import { MigrationInterface, QueryRunner } from "typeorm";
+
+export class MainMigration1732989108696 implements MigrationInterface {
+    name = 'MainMigration1732989108696'
+
+    public async up(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query(`ALTER TABLE "refresh_tokens" DROP CONSTRAINT "FK_610102b60fea1455310ccd299de"`);
+        await queryRunner.query(`ALTER TABLE "mechanics" DROP CONSTRAINT "FK_63ad7be14f0029719971fbb61f8"`);
+        await queryRunner.query(`ALTER TABLE "mechanics" DROP CONSTRAINT "FK_85c0da75e5dedc5eca00055cfbe"`);
+        await queryRunner.query(`ALTER TABLE "car_showroom" DROP CONSTRAINT "FK_22442b26cd5053aee617d0873e5"`);
+        await queryRunner.query(`ALTER TABLE "offers" DROP CONSTRAINT "FK_dee629b1248f4ad48268faa9ea1"`);
+        await queryRunner.query(`ALTER TABLE "refresh_tokens" RENAME COLUMN "userId" TO "user_id"`);
+        await queryRunner.query(`ALTER TABLE "car_showroom" RENAME COLUMN "userId" TO "user_id"`);
+        await queryRunner.query(`CREATE TABLE "car_brand" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "brand" character varying NOT NULL, CONSTRAINT "PK_cbaa76a620e6e21773085a96bf1" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "views" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created" TIMESTAMP NOT NULL DEFAULT now(), "offer_id" uuid NOT NULL, CONSTRAINT "PK_ae7537f375649a618fff0fb2cb6" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`ALTER TABLE "users" DROP COLUMN "deleted"`);
+        await queryRunner.query(`ALTER TABLE "mechanics" DROP COLUMN "experience"`);
+        await queryRunner.query(`ALTER TABLE "mechanics" DROP COLUMN "carShowroomId"`);
+        await queryRunner.query(`ALTER TABLE "mechanics" DROP COLUMN "userId"`);
+        await queryRunner.query(`ALTER TABLE "offers" DROP COLUMN "isActive"`);
+        await queryRunner.query(`ALTER TABLE "offers" DROP COLUMN "userId"`);
+        await queryRunner.query(`ALTER TABLE "users" ADD "isActive" boolean NOT NULL DEFAULT true`);
+        await queryRunner.query(`ALTER TABLE "users" ADD "permissions" json NOT NULL DEFAULT '[]'`);
+        await queryRunner.query(`ALTER TABLE "mechanics" ADD "experienceInYears" text`);
+        await queryRunner.query(`ALTER TABLE "mechanics" ADD "user_id" uuid NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "mechanics" ADD "carShowroom_id" uuid NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "offers" ADD "priceInUAH" integer NOT NULL DEFAULT '0'`);
+        await queryRunner.query(`ALTER TABLE "offers" ADD "currencyRate" text NOT NULL`);
+        await queryRunner.query(`CREATE TYPE "public"."offers_status_enum" AS ENUM('active', 'inactive', 'pending')`);
+        await queryRunner.query(`ALTER TABLE "offers" ADD "status" "public"."offers_status_enum" NOT NULL DEFAULT 'pending'`);
+        await queryRunner.query(`ALTER TABLE "offers" ADD "attempts" smallint NOT NULL DEFAULT '0'`);
+        await queryRunner.query(`ALTER TABLE "offers" ADD "user_id" uuid NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "offers" ADD "carShowroom_id" uuid`);
+        await queryRunner.query(`ALTER TABLE "refresh_tokens" ALTER COLUMN "user_id" SET NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "users" ALTER COLUMN "phone" DROP NOT NULL`);
+        await queryRunner.query(`ALTER TYPE "public"."users_role_enum" RENAME TO "users_role_enum_old"`);
+        await queryRunner.query(`CREATE TYPE "public"."users_role_enum" AS ENUM('guest', 'user', 'admin', 'super_admin', 'showroom_admin', 'showroom_super_admin', 'showroom_mechanic')`);
+        await queryRunner.query(`ALTER TABLE "users" ALTER COLUMN "role" DROP DEFAULT`);
+        await queryRunner.query(`ALTER TABLE "users" ALTER COLUMN "role" TYPE "public"."users_role_enum" USING "role"::"text"::"public"."users_role_enum"`);
+        await queryRunner.query(`ALTER TABLE "users" ALTER COLUMN "role" SET DEFAULT 'guest'`);
+        await queryRunner.query(`DROP TYPE "public"."users_role_enum_old"`);
+        await queryRunner.query(`ALTER TYPE "public"."mechanics_role_enum" RENAME TO "mechanics_role_enum_old"`);
+        await queryRunner.query(`CREATE TYPE "public"."mechanics_role_enum" AS ENUM('guest', 'user', 'admin', 'super_admin', 'showroom_admin', 'showroom_super_admin', 'showroom_mechanic')`);
+        await queryRunner.query(`ALTER TABLE "mechanics" ALTER COLUMN "role" DROP DEFAULT`);
+        await queryRunner.query(`ALTER TABLE "mechanics" ALTER COLUMN "role" TYPE "public"."mechanics_role_enum" USING "role"::"text"::"public"."mechanics_role_enum"`);
+        await queryRunner.query(`ALTER TABLE "mechanics" ALTER COLUMN "role" SET DEFAULT 'showroom_mechanic'`);
+        await queryRunner.query(`DROP TYPE "public"."mechanics_role_enum_old"`);
+        await queryRunner.query(`ALTER TABLE "car_showroom" ALTER COLUMN "user_id" SET NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "car_showroom" ADD CONSTRAINT "UQ_4bdf0e8884f97ff07a426917bba" UNIQUE ("user_id")`);
+        await queryRunner.query(`ALTER TABLE "offers" DROP COLUMN "brand"`);
+        await queryRunner.query(`DROP TYPE "public"."offers_brand_enum"`);
+        await queryRunner.query(`ALTER TABLE "offers" ADD "brand" text NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "offers" DROP COLUMN "price"`);
+        await queryRunner.query(`ALTER TABLE "offers" ADD "price" integer NOT NULL DEFAULT '0'`);
+        await queryRunner.query(`ALTER TABLE "offers" ALTER COLUMN "city" DROP NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "offers" ALTER COLUMN "region" DROP NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "refresh_tokens" ADD CONSTRAINT "FK_3ddc983c5f7bcf132fd8732c3f4" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "mechanics" ADD CONSTRAINT "FK_4e69c5d1d5ef843a571535ccfde" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "mechanics" ADD CONSTRAINT "FK_512faea902b54badc297f0e785b" FOREIGN KEY ("carShowroom_id") REFERENCES "car_showroom"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "car_showroom" ADD CONSTRAINT "FK_4bdf0e8884f97ff07a426917bba" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "offers" ADD CONSTRAINT "FK_2547a43d7409b85f70d4469c23a" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "offers" ADD CONSTRAINT "FK_ba1275a0f4d98ee236ad9e2e67b" FOREIGN KEY ("carShowroom_id") REFERENCES "car_showroom"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "views" ADD CONSTRAINT "FK_19045d1078870bb15d9b6d1d2b8" FOREIGN KEY ("offer_id") REFERENCES "offers"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+    }
+
+    public async down(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query(`ALTER TABLE "views" DROP CONSTRAINT "FK_19045d1078870bb15d9b6d1d2b8"`);
+        await queryRunner.query(`ALTER TABLE "offers" DROP CONSTRAINT "FK_ba1275a0f4d98ee236ad9e2e67b"`);
+        await queryRunner.query(`ALTER TABLE "offers" DROP CONSTRAINT "FK_2547a43d7409b85f70d4469c23a"`);
+        await queryRunner.query(`ALTER TABLE "car_showroom" DROP CONSTRAINT "FK_4bdf0e8884f97ff07a426917bba"`);
+        await queryRunner.query(`ALTER TABLE "mechanics" DROP CONSTRAINT "FK_512faea902b54badc297f0e785b"`);
+        await queryRunner.query(`ALTER TABLE "mechanics" DROP CONSTRAINT "FK_4e69c5d1d5ef843a571535ccfde"`);
+        await queryRunner.query(`ALTER TABLE "refresh_tokens" DROP CONSTRAINT "FK_3ddc983c5f7bcf132fd8732c3f4"`);
+        await queryRunner.query(`ALTER TABLE "offers" ALTER COLUMN "region" SET NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "offers" ALTER COLUMN "city" SET NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "offers" DROP COLUMN "price"`);
+        await queryRunner.query(`ALTER TABLE "offers" ADD "price" smallint NOT NULL DEFAULT '0'`);
+        await queryRunner.query(`ALTER TABLE "offers" DROP COLUMN "brand"`);
+        await queryRunner.query(`CREATE TYPE "public"."offers_brand_enum" AS ENUM('BMW', 'AUDI', 'MERCEDES', 'VOLKSWAGEN', 'TOYOTA', 'HONDA', 'FORD', 'CHEVROLET', 'NISSAN', 'HYUNDAI', 'KIA', 'MAZDA', 'PEUGEOT', 'CITROEN', 'RENAULT', 'FIAT', 'OPEL', 'VOLVO', 'SKODA', 'SEAT', 'MINI', 'JEEP', 'LAND ROVER', 'PORSHE', 'JAGUAR', 'LEXUS', 'DEAWOO')`);
+        await queryRunner.query(`ALTER TABLE "offers" ADD "brand" "public"."offers_brand_enum" NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "car_showroom" DROP CONSTRAINT "UQ_4bdf0e8884f97ff07a426917bba"`);
+        await queryRunner.query(`ALTER TABLE "car_showroom" ALTER COLUMN "user_id" DROP NOT NULL`);
+        await queryRunner.query(`CREATE TYPE "public"."mechanics_role_enum_old" AS ENUM('customer', 'user', 'manager', 'admin', 'showroom_admin', 'showroom_manager', 'showroom_mechanic')`);
+        await queryRunner.query(`ALTER TABLE "mechanics" ALTER COLUMN "role" DROP DEFAULT`);
+        await queryRunner.query(`ALTER TABLE "mechanics" ALTER COLUMN "role" TYPE "public"."mechanics_role_enum_old" USING "role"::"text"::"public"."mechanics_role_enum_old"`);
+        await queryRunner.query(`ALTER TABLE "mechanics" ALTER COLUMN "role" SET DEFAULT 'showroom_mechanic'`);
+        await queryRunner.query(`DROP TYPE "public"."mechanics_role_enum"`);
+        await queryRunner.query(`ALTER TYPE "public"."mechanics_role_enum_old" RENAME TO "mechanics_role_enum"`);
+        await queryRunner.query(`CREATE TYPE "public"."users_role_enum_old" AS ENUM('customer', 'user', 'manager', 'admin', 'showroom_admin', 'showroom_manager', 'showroom_mechanic')`);
+        await queryRunner.query(`ALTER TABLE "users" ALTER COLUMN "role" DROP DEFAULT`);
+        await queryRunner.query(`ALTER TABLE "users" ALTER COLUMN "role" TYPE "public"."users_role_enum_old" USING "role"::"text"::"public"."users_role_enum_old"`);
+        await queryRunner.query(`ALTER TABLE "users" ALTER COLUMN "role" SET DEFAULT 'customer'`);
+        await queryRunner.query(`DROP TYPE "public"."users_role_enum"`);
+        await queryRunner.query(`ALTER TYPE "public"."users_role_enum_old" RENAME TO "users_role_enum"`);
+        await queryRunner.query(`ALTER TABLE "users" ALTER COLUMN "phone" SET NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "refresh_tokens" ALTER COLUMN "user_id" DROP NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "offers" DROP COLUMN "carShowroom_id"`);
+        await queryRunner.query(`ALTER TABLE "offers" DROP COLUMN "user_id"`);
+        await queryRunner.query(`ALTER TABLE "offers" DROP COLUMN "attempts"`);
+        await queryRunner.query(`ALTER TABLE "offers" DROP COLUMN "status"`);
+        await queryRunner.query(`DROP TYPE "public"."offers_status_enum"`);
+        await queryRunner.query(`ALTER TABLE "offers" DROP COLUMN "currencyRate"`);
+        await queryRunner.query(`ALTER TABLE "offers" DROP COLUMN "priceInUAH"`);
+        await queryRunner.query(`ALTER TABLE "mechanics" DROP COLUMN "carShowroom_id"`);
+        await queryRunner.query(`ALTER TABLE "mechanics" DROP COLUMN "user_id"`);
+        await queryRunner.query(`ALTER TABLE "mechanics" DROP COLUMN "experienceInYears"`);
+        await queryRunner.query(`ALTER TABLE "users" DROP COLUMN "permissions"`);
+        await queryRunner.query(`ALTER TABLE "users" DROP COLUMN "isActive"`);
+        await queryRunner.query(`ALTER TABLE "offers" ADD "userId" uuid`);
+        await queryRunner.query(`ALTER TABLE "offers" ADD "isActive" boolean NOT NULL DEFAULT false`);
+        await queryRunner.query(`ALTER TABLE "mechanics" ADD "userId" uuid`);
+        await queryRunner.query(`ALTER TABLE "mechanics" ADD "carShowroomId" uuid`);
+        await queryRunner.query(`ALTER TABLE "mechanics" ADD "experience" text`);
+        await queryRunner.query(`ALTER TABLE "users" ADD "deleted" TIMESTAMP`);
+        await queryRunner.query(`DROP TABLE "views"`);
+        await queryRunner.query(`DROP TABLE "car_brand"`);
+        await queryRunner.query(`ALTER TABLE "car_showroom" RENAME COLUMN "user_id" TO "userId"`);
+        await queryRunner.query(`ALTER TABLE "refresh_tokens" RENAME COLUMN "user_id" TO "userId"`);
+        await queryRunner.query(`ALTER TABLE "offers" ADD CONSTRAINT "FK_dee629b1248f4ad48268faa9ea1" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "car_showroom" ADD CONSTRAINT "FK_22442b26cd5053aee617d0873e5" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "mechanics" ADD CONSTRAINT "FK_85c0da75e5dedc5eca00055cfbe" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "mechanics" ADD CONSTRAINT "FK_63ad7be14f0029719971fbb61f8" FOREIGN KEY ("carShowroomId") REFERENCES "car_showroom"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "refresh_tokens" ADD CONSTRAINT "FK_610102b60fea1455310ccd299de" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
+    }
+
+}

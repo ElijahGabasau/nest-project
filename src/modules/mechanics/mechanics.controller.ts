@@ -34,7 +34,7 @@ export class MechanicsController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAccessGuard, RolesGuard)
-  @Roles(RoleEnum.USER)
+  @Roles(RoleEnum.USER, RoleEnum.SHOWROOM_SUPER_ADMIN, RoleEnum.SHOWROOM_ADMIN)
   @Post()
   @ApiOperation({ summary: 'Create mechanic' })
   public async create(
@@ -47,7 +47,7 @@ export class MechanicsController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAccessGuard, RolesGuard)
-  @Roles(RoleEnum.USER)
+  @Roles(RoleEnum.USER, RoleEnum.SHOWROOM_SUPER_ADMIN, RoleEnum.SHOWROOM_ADMIN)
   @Patch('/my-mechanic:mechanicId')
   @ApiOperation({ summary: 'Update mechanic information' })
   public async update(
@@ -77,7 +77,7 @@ export class MechanicsController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAccessGuard, RolesGuard)
-  @Roles(RoleEnum.USER)
+  @Roles(RoleEnum.USER, RoleEnum.SHOWROOM_SUPER_ADMIN, RoleEnum.SHOWROOM_ADMIN)
   @Get('/my-mechanic:mechanicId')
   @ApiOperation({ summary: 'Get my mechanic by ID' })
   public async getMyMechanic(
@@ -103,7 +103,7 @@ export class MechanicsController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAccessGuard, RolesGuard)
-  @Roles(RoleEnum.USER)
+  @Roles(RoleEnum.USER, RoleEnum.SHOWROOM_SUPER_ADMIN, RoleEnum.SHOWROOM_ADMIN)
   @Delete('/my-mechanic:mechanicId')
   @ApiOperation({ summary: 'Delete my mechanic by ID' })
   public async deleteMyMechanic(

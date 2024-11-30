@@ -26,6 +26,7 @@ import { CarBrandReqDto } from '../models/dto/req/car-brand.req.dto';
 import { ListOfferQueryDto } from '../models/dto/req/list-offer-query.dto';
 import { OfferBaseReqDto } from '../models/dto/req/offer-base.req.dto';
 import { UpdateOfferReqDto } from '../models/dto/req/update-offer.req.dto';
+import { OfferBaseResDto } from '../models/dto/res/offer-base.res.dto';
 import { StatusEnum } from '../models/enums/status.enum';
 import { CurrencyService } from './currency.service';
 
@@ -170,7 +171,7 @@ export class OffersService {
     userData: IUserData,
     offerId: OfferID,
     file: Express.Multer.File,
-  ): Promise<void> {
+  ): Promise<OfferEntity> {
     const offer = await OfferHelper.checkAccessToOffer(
       this.offerRepository,
       offerId,
@@ -187,7 +188,11 @@ export class OffersService {
     }
     const awsConfig = this.configService.get<AwsConfig>('aws');
     const imageURL = `${awsConfig.endpoint}/${awsConfig.bucketName}/${pathToFile}`;
-    await this.offerRepository.save({ ...offer, image: imageURL });
+    const updatedOffer = await this.offerRepository.save({
+      ...offer,
+      image: imageURL,
+    });
+    return updatedOffer;
   }
 
   public async deleteCarImage(

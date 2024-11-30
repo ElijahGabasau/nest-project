@@ -38,7 +38,7 @@ export class OfferHelper {
   ): Promise<UserEntity> {
     const user = await userRepository.findOneBy({
       id: userId,
-      isDeleted: false,
+      isActive: true,
     });
     if (!user) {
       throw new ConflictException('User is banned or deleted');

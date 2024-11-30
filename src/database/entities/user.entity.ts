@@ -37,14 +37,14 @@ export class UserEntity extends CreateUpdateModel {
   @Column('enum', { enum: AccountEnum, default: AccountEnum.BASIC })
   account: AccountEnum;
 
-  @Column('enum', { enum: RoleEnum, default: RoleEnum.USER })
+  @Column('enum', { enum: RoleEnum, default: RoleEnum.GUEST })
   role: RoleEnum;
 
   @Column('boolean', { default: false })
   isHaveSalon: boolean;
 
-  @Column('boolean', { default: false })
-  isDeleted: boolean;
+  @Column('boolean', { default: true })
+  isActive: boolean;
 
   @Column('json', { default: [] })
   permissions: PermissionEnum[];

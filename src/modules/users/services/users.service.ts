@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
+import { RoleEnum } from '../../../common/enums/role.enum';
 import { UserEntity } from '../../../database/entities/user.entity';
 import { TokensHelper } from '../../auth/helpers/tokens.helper';
 import { IUserData } from '../../auth/models/interfaces/user-data.interface';
@@ -17,6 +18,12 @@ export class UsersService {
     private readonly authCacheService: AuthCacheService,
   ) {}
 
+  public async becomeSeller(userData: IUserData): Promise<UserEntity> {
+    const user = await this.userRepository.findOneBy({ id: userData.userId });
+    user.role = RoleEnum.USER;
+    return await this.userRepository.save(user);
+  }
+
   public async me(userData: IUserData): Promise<UserEntity> {
     return await this.userRepository.findOneBy({ id: userData.userId });
   }
@@ -33,7 +40,7 @@ export class UsersService {
 
   public async deleteMe(userData: IUserData): Promise<void> {
     await Promise.all([
-      this.userRepository.update({ id: userData.userId }, { isDeleted: true }),
+      this.userRepository.update({ id: userData.userId }, { isActive: true }),
       TokensHelper.deleteTokens(
         this.authCacheService,
         this.refreshTokenRepository,
@@ -42,10 +49,12 @@ export class UsersService {
     ]);
   }
 
-  public async updateAccount(userData: IUserData): Promise<void> {
+  public async updateAccount(userData: IUserData): Promise<UserEntity> {
     await this.userRepository.update(
       { id: userData.userId },
       { account: AccountEnum.PREMIUM },
     );
+    const user = await this.userRepository.findOneBy({ id: userData.userId });
+    return user;
   }
 }

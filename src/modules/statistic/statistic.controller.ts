@@ -19,7 +19,13 @@ export class StatisticController {
   constructor(private readonly statisticService: StatisticService) {}
 
   @UseGuards(JwtAccessGuard, RolesGuard)
-  @Roles(RoleEnum.USER)
+  @Roles(
+    RoleEnum.USER,
+    RoleEnum.ADMIN,
+    RoleEnum.SUPER_ADMIN,
+    RoleEnum.SHOWROOM_ADMIN,
+    RoleEnum.SHOWROOM_SUPER_ADMIN,
+  )
   @Get(':offerId')
   @ApiOperation({ summary: 'Get offer statistic' })
   public async getStatistic(
