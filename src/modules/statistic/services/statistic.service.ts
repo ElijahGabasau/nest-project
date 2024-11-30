@@ -3,12 +3,13 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import { Between } from 'typeorm';
 
-import { RoleEnum } from '../../../common/enums/role.enum';
 import { OfferID } from '../../../common/types/entity-ids.type';
 import { IUserData } from '../../auth/models/interfaces/user-data.interface';
 import { StatusEnum } from '../../offers/models/enums/status.enum';
 import { OfferRepository } from '../../repository/services/offer.repository';
+import { UserRepository } from '../../repository/services/user.repository';
 import { ViewRepository } from '../../repository/services/view.repository';
+import { AccountEnum } from '../../users/models/enums/account.enum';
 import { StatisticBaseResDto } from '../models/dto/res/statistic-base.res.dto';
 
 dayjs.extend(utc);
@@ -18,6 +19,7 @@ export class StatisticService {
   constructor(
     private readonly viewRepository: ViewRepository,
     private readonly offerRepository: OfferRepository,
+    private readonly userRepository: UserRepository,
   ) {}
 
   public async getStatistic(
@@ -30,7 +32,11 @@ export class StatisticService {
     const week = now.subtract(1, 'week');
     const month = now.subtract(1, 'month');
 
-    if (userData.role === RoleEnum.USER) {
+    const user = await this.userRepository.findOneBy({
+      id: userData.userId,
+    });
+
+    if (user.account !== AccountEnum.PREMIUM) {
       throw new ForbiddenException(
         'Only user with premium account can get statistic',
       );
