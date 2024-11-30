@@ -199,10 +199,17 @@ export class OffersService {
       offerId,
       userData,
     );
+    const key = this.extractKeyFromUrl(offer.image);
     if (offer.image) {
-      await this.fileStorageService.deleteFile(offer.image);
+      await this.fileStorageService.deleteFile(key);
       await this.offerRepository.save({ ...offer, image: null });
     }
+  }
+
+  private extractKeyFromUrl(url: string): string {
+    const awsConfig = this.configService.get<AwsConfig>('aws');
+    const bucketUrl = `${awsConfig.endpoint}/${awsConfig.bucketName}/`;
+    return url.replace(bucketUrl, '');
   }
 
   public async updateMyOffer(
