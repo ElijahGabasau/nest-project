@@ -1,0 +1,32 @@
+import { CarShowroomID, OfferID, UserID } from '../../common/types/entity-ids.type';
+import { CurrencyEnum } from '../../modules/offers/models/enums/currency.enum';
+import { StatusEnum } from '../../modules/offers/models/enums/status.enum';
+import { CarBrandEntity } from './car-brand.entity';
+import { CarShowroomEntity } from './car-showroom.entity';
+import { CreateUpdateModel } from './models/create-update.model';
+import { UserEntity } from './user.entity';
+import { ViewEntity } from './view.entity';
+export declare class OfferEntity extends CreateUpdateModel {
+    id: OfferID;
+    title: string;
+    description: string;
+    brand: string;
+    model: string;
+    year?: number;
+    price: number;
+    currency: CurrencyEnum;
+    priceInUAH: number;
+    currencyRate: number;
+    city: string;
+    region: string;
+    image?: string;
+    status: StatusEnum;
+    isSalon: boolean;
+    attempts: number;
+    user_id: UserID;
+    user?: UserEntity;
+    carShowroom_id?: CarShowroomID;
+    carShowroom?: CarShowroomEntity;
+    views?: ViewEntity[];
+    carBrand?: CarBrandEntity;
+}
